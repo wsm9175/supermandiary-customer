@@ -38,6 +38,9 @@ import java.util.List;
                 @NamedSubgraph(name = "review", attributeNodes = {
                         @NamedAttributeNode(value = "reviewImageFileList")
                 })
+        }),
+        @NamedEntityGraph(name = "get-with-file", attributeNodes = {
+                @NamedAttributeNode(value = "constructorImageFile")
         })
 })
 

@@ -16,6 +16,7 @@ public interface ConstructorRepository extends JpaRepository<Constructor, String
     @EntityGraph(value = "get-all-data", type = EntityGraph.EntityGraphType.LOAD)
     public List<Constructor> findByConstructorWorkAreas(SiggAreas siggAreas);
 
+    @EntityGraph(value = "get-with-file", type = EntityGraph.EntityGraphType.LOAD)
     public Optional<List<Constructor>> findByNameContaining(String keyWord);
 
 }
