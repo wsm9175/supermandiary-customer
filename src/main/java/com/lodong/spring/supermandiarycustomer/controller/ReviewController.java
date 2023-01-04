@@ -63,7 +63,6 @@ public class ReviewController {
             return getResponseMessage(StatusEnum.OK, e.getMessage());
         }
     }
-
     private String getMyUuId(String token) throws NullPointerException {
         return jwtTokenProvider.getUserUuid(token.substring(7));
     }

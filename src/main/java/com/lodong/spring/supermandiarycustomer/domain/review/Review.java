@@ -23,8 +23,8 @@ import java.util.Set;
 
 @NamedEntityGraphs({
         @NamedEntityGraph(name = "get-review-with-all", attributeNodes = {
-                @NamedAttributeNode("constructor"),
-                @NamedAttributeNode("working"),
+                @NamedAttributeNode(value = "constructor", subgraph = "constructorImage"),
+                @NamedAttributeNode(value = "working", subgraph = "constructorProduct"),
                 @NamedAttributeNode("customer"),
                 @NamedAttributeNode("reviewComment"),
                 @NamedAttributeNode(value = "reviewImageFileList", subgraph = "image"),
@@ -32,6 +32,12 @@ import java.util.Set;
         }, subgraphs = {
                 @NamedSubgraph(name = "image", attributeNodes = {
                         @NamedAttributeNode("fileList")
+                }),
+                @NamedSubgraph(name = "constructorProduct", attributeNodes = {
+                        @NamedAttributeNode("constructorProduct")
+                }),
+                @NamedSubgraph(name = "constructorImage", attributeNodes = {
+                        @NamedAttributeNode("constructorImageFile")
                 })
         })
 })
@@ -59,6 +65,7 @@ public class Review {
     @Column(nullable = false)
     private LocalDate createAt;
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "review_comment_id")
     private ReviewComment reviewComment;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "review")
     private Set<ReviewImageFile> reviewImageFileList;
