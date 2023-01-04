@@ -1,10 +1,8 @@
 package com.lodong.spring.supermandiarycustomer.service;
 
-import com.lodong.spring.supermandiarycustomer.domain.apart.Apartment;
 import com.lodong.spring.supermandiarycustomer.domain.constructor.ConstructorProductWorkList;
 import com.lodong.spring.supermandiarycustomer.domain.estimate.Estimate;
 import com.lodong.spring.supermandiarycustomer.domain.request_order.RequestOrder;
-import com.lodong.spring.supermandiarycustomer.domain.usercustomer.UserCustomer;
 import com.lodong.spring.supermandiarycustomer.domain.working.NowWorkInfo;
 import com.lodong.spring.supermandiarycustomer.domain.working.WorkDetail;
 import com.lodong.spring.supermandiarycustomer.domain.working.Working;
@@ -39,7 +37,7 @@ public class EstimateService {
         for (Estimate estimate : estimateList) {
             MyEstimateDTO myEstimateDTO = null;
             if (estimate.getRequestOrder().getApartment() != null) {
-                myEstimateDTO = new MyEstimateDTO(estimate.getId(), estimate.getConstructor().getName(), estimate.getRequestOrder().getApartment().getName(), estimate.getRequestOrder().getDong(), estimate.getRequestOrder().getHosu(), estimate.getRequestOrder().getApartment_type(), estimate.getConstructorProduct().getName(), estimate.getStatus());
+                myEstimateDTO = new MyEstimateDTO(estimate.getId(), estimate.getConstructor().getName(), estimate.getRequestOrder().getApartment().getName(), estimate.getRequestOrder().getDong(), estimate.getRequestOrder().getHosu(), estimate.getRequestOrder().getApartmentType(), estimate.getConstructorProduct().getName(), estimate.getStatus());
             } else if (estimate.getRequestOrder().getOtherHome() != null) {
                 myEstimateDTO = new MyEstimateDTO(estimate.getId(), estimate.getConstructor().getName(), estimate.getRequestOrder().getOtherHome().getName(), estimate.getRequestOrder().getOtherHomeDong(), estimate.getRequestOrder().getOtherHomeHosu(), estimate.getRequestOrder().getOtherHomeType(), estimate.getConstructorProduct().getName(), estimate.getStatus());
             }
@@ -77,7 +75,7 @@ public class EstimateService {
 
         EstimateInfoDto estimateInfoDto;
         if (estimate.getRequestOrder().getApartment() != null) {
-            estimateInfoDto = new EstimateInfoDto(estimate.getConstructor().getName(), phoneNumber, estimate.getRequestOrder().getApartment().getName(), estimate.getRequestOrder().getDong(), estimate.getRequestOrder().getHosu(), estimate.getRequestOrder().getApartment_type(), estimate.getRequestOrder().getLiveInDate(), estimate.getRequestOrder().isConfirmationLiveIn(), estimate.getRequestOrder().getRequestConstructDate(), estimate.getRequestOrder().isConfirmationConstruct(), estimate.getRequestOrder().isCashReceipt(), estimate.getRequestOrder().getNote(), estimate.getConstructorProduct().getName(), estimateDetailList, discountDtoList, estimate.getPrice(), estimate.isVat(), estimate.getNote());
+            estimateInfoDto = new EstimateInfoDto(estimate.getConstructor().getName(), phoneNumber, estimate.getRequestOrder().getApartment().getName(), estimate.getRequestOrder().getDong(), estimate.getRequestOrder().getHosu(), estimate.getRequestOrder().getApartmentType(), estimate.getRequestOrder().getLiveInDate(), estimate.getRequestOrder().isConfirmationLiveIn(), estimate.getRequestOrder().getRequestConstructDate(), estimate.getRequestOrder().isConfirmationConstruct(), estimate.getRequestOrder().isCashReceipt(), estimate.getRequestOrder().getNote(), estimate.getConstructorProduct().getName(), estimateDetailList, discountDtoList, estimate.getPrice(), estimate.isVat(), estimate.getNote());
         } else {
             estimateInfoDto = new EstimateInfoDto(estimate.getConstructor().getName(), phoneNumber, estimate.getRequestOrder().getOtherHome().getName(), estimate.getRequestOrder().getOtherHomeDong(), estimate.getRequestOrder().getOtherHomeHosu(), estimate.getRequestOrder().getOtherHomeType(), estimate.getRequestOrder().getLiveInDate(), estimate.getRequestOrder().isConfirmationLiveIn(), estimate.getRequestOrder().getRequestConstructDate(), estimate.getRequestOrder().isConfirmationConstruct(), estimate.getRequestOrder().isCashReceipt(), estimate.getRequestOrder().getNote(), estimate.getConstructorProduct().getName(), estimateDetailList, discountDtoList, estimate.getPrice(), estimate.isVat(), estimate.getNote());
         }

@@ -33,4 +33,6 @@ public class CustomerAddress {
     private String otherHomeDong;
     private String otherHomeHosu;
 
+    private String type;
+
 }

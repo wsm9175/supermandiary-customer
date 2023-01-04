@@ -15,4 +15,6 @@ public interface WorkingRepository extends JpaRepository<Working, String> {
     public Optional<List<Working>> findByApartment_IdAndApartmentDongAndApartmentHosuAndUserCustomer_Id(String apartmentId, String dong, String hosu, String uuid);
     @EntityGraph(value = "get-estimate-info", type = EntityGraph.EntityGraphType.LOAD)
     public Optional<List<Working>> findByOtherHome_IdAndOtherHomeDongAndOtherHomeHosuAndUserCustomer_Id(String otherHomeId, String dong, String hosu, String uuid);
+
+
 }

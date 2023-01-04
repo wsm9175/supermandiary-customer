@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
 public class RequestOrderProduct {
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_order_id")

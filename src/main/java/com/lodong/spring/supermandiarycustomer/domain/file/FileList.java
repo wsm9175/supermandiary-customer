@@ -4,6 +4,8 @@ import com.lodong.spring.supermandiarycustomer.domain.constructor.ConstructorIma
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 
 @Entity
 @Getter @Setter @ToString @Builder

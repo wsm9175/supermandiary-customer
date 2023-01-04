@@ -20,7 +20,5 @@ public interface UserCustomerRepository extends JpaRepository<UserCustomer, Stri
     @Query(value = "UPDATE UserCustomer u set u.refreshToken =:refreshToken where u.phoneNumber = :phoneNumber")
     void insertRefreshToken(String refreshToken, String phoneNumber);
 
-
-
     public boolean existsByEmail(String email);
 }

@@ -12,6 +12,5 @@ import java.util.List;
 @NoArgsConstructor
 public class MainInfoDTO {
     private List<ScheduledWorkDTO> scheduledWorkList;
-    private List<ConstructorDTO> nearByConstructorList;
     private MyEstimateDTO myEstimateDTO;
 }

@@ -14,6 +14,7 @@ import com.lodong.spring.supermandiarycustomer.repository.ReviewRepository;
 import com.lodong.spring.supermandiarycustomer.repository.UserCustomerRepository;
 import com.lodong.spring.supermandiarycustomer.repository.WorkingRepository;
 import com.lodong.spring.supermandiarycustomer.util.DateUtil;
+import edu.emory.mathcs.backport.java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -69,7 +71,7 @@ public class ReviewService {
             for (ReviewImageFile reviewImageFile : review.getReviewImageFileList()) {
                 reviewImageFileNameList.add(reviewImageFile.getFileList().getName());
             }
-            myReviewDTOList.add(new MyReviewDTO(review.getId(), reviewImageFileNameList, review.getCustomer().getId(), review.getCustomerName(), review.isSatisfaction(), review.getContents(), review.getCreateAt(), review.getLikeCount(), review.getWorking().getConstructorProduct().getName()));
+            myReviewDTOList.add(new MyReviewDTO(review.getId(), reviewImageFileNameList, review.getCustomer().getId(), review.getCustomerName(), review.isSatisfaction(), review.getContents(), review.getCreateAt(), Optional.ofNullable(review.getReviewLikeList()).orElseGet(Collections::emptySet).size(), review.getWorking().getConstructorProduct().getName()));
         }
 
         return myReviewDTOList;
@@ -98,7 +100,6 @@ public class ReviewService {
                 .contents(writeReviewDTO.getContent())
                 .isSatisfaction(writeReviewDTO.isSatisfaction())
                 .createAt(LocalDate.now())
-                .likeCount(0)
                 .build();
         reviewRepository.save(review);
 

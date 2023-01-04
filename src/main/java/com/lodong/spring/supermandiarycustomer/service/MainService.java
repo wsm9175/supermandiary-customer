@@ -19,7 +19,6 @@ import com.lodong.spring.supermandiarycustomer.enumvalue.RequestOrderEnum;
 import com.lodong.spring.supermandiarycustomer.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,56 +58,14 @@ public class MainService {
     }
 
     @Transactional(readOnly = true)
-    public MainInfoDTO getMainInfo(String uuid, String addressId) throws NullPointerException {
+    public List<ConstructorDTO> getNearConstructor(String uuid, String addressId) throws NullPointerException {
         CustomerAddress customerAddress = customerAddressRepository
                 .findById(addressId)
                 .orElseThrow(() -> new NullPointerException("해당 주소는 존재하지 않습니다."));
 
-        List<Working> workingList = new ArrayList<>();
-        List<ScheduledWorkDTO> scheduledWorkDTOS = new ArrayList<>();
         Optional<SiggAreas> siggAreas = Optional.empty();
-        List<RequestOrder> requestOrderList = new ArrayList<>();
-        List<Estimate> estimateList = new ArrayList<>();
-        int nowWorkingCount = 0;
-        int completeWorkingCount = 0;
-
-        //예정된 작업 목록
-        //아파트인지 기타 건물인지 구분
-        if (customerAddress.getApartment() != null) {
-            workingList = workingRepository
-                    .findByApartment_IdAndApartmentDongAndApartmentHosuAndUserCustomer_Id(customerAddress.getApartment().getId(), customerAddress.getApartmentDong(), customerAddress.getApartmentHosu(), uuid)
-                    .orElse(new ArrayList<>());
-            siggAreas = Optional.ofNullable(customerAddress.getApartment().getSiggAreas());
-            requestOrderList = requestOrderRepository.findByCustomer_IdAndApartment_IdAndDongAndHosu(uuid, customerAddress.getApartment().getId(), customerAddress.getApartmentDong(), customerAddress.getApartmentHosu()).orElse(Collections.emptyList()).stream()
-                    .filter(requestOrder ->
-                            requestOrder.getStatus().equals(RequestOrderEnum.BASIC.label()) || requestOrder.getStatus().equals(RequestOrderEnum.DEFER.label()))
-                    .toList();
-        } else if (customerAddress.getOtherHome() != null) {
-            workingList = workingRepository
-                    .findByOtherHome_IdAndOtherHomeDongAndOtherHomeHosuAndUserCustomer_Id(customerAddress.getOtherHome().getId(), customerAddress.getOtherHomeDong(), customerAddress.getOtherHomeHosu(), uuid)
-                    .orElse(new ArrayList<>());
-            siggAreas = Optional.ofNullable(customerAddress.getOtherHome().getSiggAreas());
-            requestOrderList = requestOrderRepository.findByCustomer_IdAndOtherHome_IdAndOtherHomeDongAndOtherHomeHosu(uuid, customerAddress.getOtherHome().getId(), customerAddress.getOtherHomeDong(), customerAddress.getOtherHomeHosu()).orElse(Collections.emptyList()).stream()
-                    .filter(requestOrder -> requestOrder.getStatus().equals(RequestOrderEnum.BASIC.label()) || requestOrder.getStatus().equals(RequestOrderEnum.DEFER.label()))
-                    .toList();
-        }
-
-        for (Working working : workingList) {
-            List<WorkDetail> workDetailList = working.getWorkDetails();
-            if (working.isCompletePay()) {
-                completeWorkingCount++;
-            } else {
-                nowWorkingCount++;
-            }
-            for (WorkDetail workDetail : workDetailList) {
-                if (workDetail.getEstimateWorkDate() != null && workDetail.getEstimateWorkTime() != null) {
-                    ScheduledWorkDTO scheduledWorkDTO = new ScheduledWorkDTO(workDetail.getId(), workDetail.getEstimateWorkDate(), workDetail.getEstimateWorkTime(), working.getConstructorProduct().getName(), workDetail.getName());
-                    scheduledWorkDTOS.add(scheduledWorkDTO);
-                }
-            }
-        }
-
         //주변 시공사 정보 using siggAreas
+        siggAreas = Optional.ofNullable(customerAddress.getApartment().getSiggAreas());
         Set<Constructor> constructorList = new HashSet<>();
 
         List<Constructor> constructors = Optional.ofNullable(constructorWorkAreaRepository
@@ -131,24 +88,56 @@ public class MainService {
             nearByConstructorList.add(constructorDTO);
         }
 
-        //계약서 정보
-        MyEstimateDTO myEstimateDTO = new MyEstimateDTO();
-        //상태가 일반 - 보류인 계약서
-        requestOrderRepository.findByCustomer_IdAndApartment_IdAndDongAndHosu(uuid, customerAddress.getApartment().getId(), customerAddress.getApartmentDong(), customerAddress.getApartmentHosu()).orElse(Collections.emptyList()).stream()
+        return nearByConstructorList;
+
+    }
+
+    @Transactional(readOnly = true)
+    public MainInfoDTO getMainInfo(String uuid) throws NullPointerException {
+        List<Working> workingList = new ArrayList<>();
+        List<ScheduledWorkDTO> scheduledWorkDTOS = new ArrayList<>();
+        List<RequestOrder> requestOrderList = new ArrayList<>();
+        List<Estimate> estimateList = new ArrayList<>();
+        int nowWorkingCount = 0;
+        int completeWorkingCount = 0;
+
+        //예정된 작업 목록
+        //아파트인지 기타 건물인지 구분
+        workingList = workingRepository
+                .findByUserCustomer_Id(uuid)
+                .orElse(new ArrayList<>());
+        requestOrderList = requestOrderRepository.findByCustomer_Id(uuid).orElse(Collections.emptyList()).stream()
                 .filter(requestOrder ->
                         requestOrder.getStatus().equals(RequestOrderEnum.BASIC.label()) || requestOrder.getStatus().equals(RequestOrderEnum.DEFER.label()))
                 .toList();
+
+        for (Working working : workingList) {
+            List<WorkDetail> workDetailList = working.getWorkDetails();
+            if (working.isCompletePay()) {
+                completeWorkingCount++;
+            } else {
+                nowWorkingCount++;
+            }
+            for (WorkDetail workDetail : workDetailList) {
+                if (workDetail.getEstimateWorkDate() != null && workDetail.getEstimateWorkTime() != null) {
+                    ScheduledWorkDTO scheduledWorkDTO = new ScheduledWorkDTO(workDetail.getId(), workDetail.getEstimateWorkDate(), workDetail.getEstimateWorkTime(), working.getConstructorProduct().getName(), workDetail.getName());
+                    scheduledWorkDTOS.add(scheduledWorkDTO);
+                }
+            }
+        }
+        //계약서 정보
+        MyEstimateDTO myEstimateDTO = new MyEstimateDTO();
+        //상태가 일반 - 보류인 계약서
         myEstimateDTO.setRequestingCount(requestOrderList.size());
         //상태가 전송인 견적서
-        estimateList = Optional.of(requestOrderList).orElseGet(Collections::emptyList).stream()
-                .map(RequestOrder::getEstimate)
+        estimateList = estimateRepository.findByRequestOrder_Customer_Id(uuid).orElseGet(Collections::emptyList).stream()
                 .filter(estimate -> estimate.getStatus().equals(EstimateEnum.SEND.label()))
                 .collect(Collectors.toList());
         myEstimateDTO.setEstimateReceivedCount(estimateList.size());
         myEstimateDTO.setNowWorkingCount(nowWorkingCount);
         myEstimateDTO.setCompletedWorkingCount(completeWorkingCount);
 
-        return new MainInfoDTO(scheduledWorkDTOS, nearByConstructorList, myEstimateDTO);
+        return new MainInfoDTO(scheduledWorkDTOS, myEstimateDTO);
     }
 
     @Transactional(readOnly = true)
@@ -158,8 +147,8 @@ public class MainService {
             ConstructorDTO constructorDTO;
             if (constructor.getConstructorImageFile() != null) {
                 constructorDTO = new ConstructorDTO(constructor.getId(), constructor.getName(), constructor.getIntroduction(), constructor.getConstructorImageFile().getFileList().getName());
-            }else{
-                constructorDTO = new ConstructorDTO(constructor.getId(), constructor.getName(), constructor.getIntroduction(),null);
+            } else {
+                constructorDTO = new ConstructorDTO(constructor.getId(), constructor.getName(), constructor.getIntroduction(), null);
             }
             constructorDTOList.add(constructorDTO);
         });

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Entity
@@ -26,7 +27,12 @@ import java.util.List;
                 @NamedAttributeNode("working"),
                 @NamedAttributeNode("customer"),
                 @NamedAttributeNode("reviewComment"),
-                @NamedAttributeNode("reviewImageFileList")
+                @NamedAttributeNode(value = "reviewImageFileList", subgraph = "image"),
+                @NamedAttributeNode("reviewLikeList")
+        }, subgraphs = {
+                @NamedSubgraph(name = "image", attributeNodes = {
+                        @NamedAttributeNode("fileList")
+                })
         })
 })
 
@@ -52,10 +58,11 @@ public class Review {
     private boolean isSatisfaction;
     @Column(nullable = false)
     private LocalDate createAt;
-    @Column(nullable = false)
-    private int likeCount;
     @OneToOne(fetch = FetchType.LAZY)
     private ReviewComment reviewComment;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "review")
-    private List<ReviewImageFile> reviewImageFileList;
+    private Set<ReviewImageFile> reviewImageFileList;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "review")
+    private Set<ReviewLike> reviewLikeList;
 }

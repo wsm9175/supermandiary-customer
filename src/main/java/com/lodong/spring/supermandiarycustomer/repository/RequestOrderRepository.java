@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface RequestOrderRepository extends JpaRepository<RequestOrder, String> {
     @Override
     Optional<RequestOrder> findById(String s);
+    public Optional<List<RequestOrder>> findByCustomer_Id(String customerId);
 
     public Optional<List<RequestOrder>> findByCustomer_IdAndApartment_IdAndDongAndHosu(String customerId,String apartmentId, String dong, String hosu);
 

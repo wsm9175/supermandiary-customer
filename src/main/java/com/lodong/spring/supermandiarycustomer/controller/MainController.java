@@ -42,10 +42,21 @@ public class MainController {
     }
 
     @GetMapping("/info")
-    public ResponseEntity<?> getMainInfo(@RequestHeader(name = "Authorization") String token,String addressId){
+    public ResponseEntity<?> getMainInfo(@RequestHeader(name = "Authorization") String token){
         try{
-            MainInfoDTO mainInfoDTO =  mainService.getMainInfo(getMyUuId(token), addressId);
-            return getResponseMessage(StatusEnum.OK, "주소에 따른 메인화면 정보", mainInfoDTO);
+            MainInfoDTO mainInfoDTO =  mainService.getMainInfo(getMyUuId(token));
+            return getResponseMessage(StatusEnum.OK, "메인화면 정보", mainInfoDTO);
+        }catch (NullPointerException nullPointerException){
+            nullPointerException.printStackTrace();
+            return getResponseMessage(StatusEnum.BAD_REQUEST, nullPointerException.getMessage());
+        }
+    }
+
+    @GetMapping("/near")
+    public ResponseEntity<?> getNear(@RequestHeader(name = "Authorization") String token,String addressId){
+        try{
+            List<ConstructorDTO> nearConstructorList =  mainService.getNearConstructor(getMyUuId(token), addressId);
+            return getResponseMessage(StatusEnum.OK, "메인화면 정보", nearConstructorList);
         }catch (NullPointerException nullPointerException){
             nullPointerException.printStackTrace();
             return getResponseMessage(StatusEnum.BAD_REQUEST, nullPointerException.getMessage());

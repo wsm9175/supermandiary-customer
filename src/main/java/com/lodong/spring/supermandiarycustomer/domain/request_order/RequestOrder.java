@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lodong.spring.supermandiarycustomer.domain.apart.Apartment;
 import com.lodong.spring.supermandiarycustomer.domain.apart.OtherHome;
 import com.lodong.spring.supermandiarycustomer.domain.constructor.Constructor;
-import com.lodong.spring.supermandiarycustomer.domain.constructor.ConstructorProduct;
 import com.lodong.spring.supermandiarycustomer.domain.estimate.Estimate;
 import com.lodong.spring.supermandiarycustomer.domain.usercustomer.UserCustomer;
 import jakarta.persistence.*;
@@ -38,7 +37,7 @@ public class RequestOrder {
     @JoinColumn(name = "apartment_code")
     private Apartment apartment;
     @Column(nullable = true)
-    private String apartment_type;
+    private String apartmentType;
     @Column(nullable = true)
     private String dong;
     @Column(nullable = true)
@@ -53,9 +52,9 @@ public class RequestOrder {
     @Column(nullable = true)
     private String otherHomeHosu;
     @Column(nullable = true)
-    private String status;
-    @Column(nullable = true)
     private String otherHomeType;
+    @Column(nullable = true)
+    private String status;
 
     /////////////////////////////
     @Column(nullable = false)
@@ -68,8 +67,13 @@ public class RequestOrder {
     private boolean isConfirmationConstruct;
     @Column(nullable = false)
     private boolean isCashReceipt;
-    @Column
+    @Column(nullable = true)
     private String rejectMessage;
+    @Column(nullable = true)
+    private boolean cashReceiptPurpose;
+    @Column(nullable = true)
+    private String cashReceiptPhoneNumber;
+
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "requestOrder")
