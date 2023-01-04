@@ -15,4 +15,6 @@ public interface ReviewRepository extends JpaRepository<Review, String> {
 
     @EntityGraph(value = "get-review-with-all", type = EntityGraph.EntityGraphType.LOAD)
     public Page<Review> findByConstructor_Id(String constructorId, Pageable pageable);
+
+    public Long countByConstructor_Id(String constructorId);
 }

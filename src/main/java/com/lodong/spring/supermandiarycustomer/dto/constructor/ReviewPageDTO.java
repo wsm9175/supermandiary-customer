@@ -11,8 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 public class ReviewPageDTO {
     private long totalCount;
-    private int totalPage;
-    private boolean hasNextPage;
     private List<String> fileNames;
     private List<ReviewDetailDTO> reviewInfos;
 }

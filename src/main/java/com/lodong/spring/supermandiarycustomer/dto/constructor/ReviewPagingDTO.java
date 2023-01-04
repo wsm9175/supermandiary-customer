@@ -10,7 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReviewPagingDTO {
-    private int totalPage;
-    private boolean hasNextPage;
+    private int totalCount;
     private List<ReviewDetailDTO> reviewInfos;
 }

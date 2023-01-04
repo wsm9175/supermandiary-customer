@@ -8,11 +8,9 @@ import com.lodong.spring.supermandiarycustomer.jwt.JwtTokenProvider;
 import com.lodong.spring.supermandiarycustomer.responseentity.StatusEnum;
 import com.lodong.spring.supermandiarycustomer.service.ConstructorService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -51,9 +49,9 @@ public class ConstructorController {
     }
 
     @GetMapping("/review/init")
-    public ResponseEntity<?> reviewPageInit(String constructorId) {
+    public ResponseEntity<?> reviewPageInit(@RequestHeader(name = "Authorization") String token,String constructorId) {
         try {
-            ReviewPageDTO reviewPageDTO = constructorService.getReviewPageInfo(constructorId);
+            ReviewPageDTO reviewPageDTO = constructorService.getReviewPageInfo(getMyUuId(token), constructorId);
             return getResponseMessage(StatusEnum.OK, "해당 시공사 리뷰 리스트", reviewPageDTO);
         } catch (NullPointerException nullPointerException) {
             nullPointerException.printStackTrace();
@@ -62,15 +60,41 @@ public class ConstructorController {
     }
 
     @GetMapping("/review")
-    public ResponseEntity<?> reviewPage(String constructorId, int page) {
+    public ResponseEntity<?> reviewPage(@RequestHeader(name = "Authorization") String token,String constructorId, int page) {
         try {
-            ReviewPagingDTO reviewPageDTO = constructorService.getReviewPage(constructorId, page);
+            ReviewPagingDTO reviewPageDTO = constructorService.getReviewPage(getMyUuId(token),constructorId, page);
             return getResponseMessage(StatusEnum.OK, "해당 시공사 리뷰 리스트", reviewPageDTO);
         } catch (NullPointerException nullPointerException) {
             nullPointerException.printStackTrace();
             return getResponseMessage(StatusEnum.BAD_REQUEST, nullPointerException.getMessage());
         }
     }
+
+    @PatchMapping("/review/like")
+    public ResponseEntity<?> reviewLike(@RequestHeader(name = "Authorization") String token, String reviewId){
+        try{
+            constructorService.reviewLike(getMyUuId(token), reviewId);
+            return getResponseMessage(StatusEnum.OK, "좋아요 성공", null);
+        }catch (NullPointerException nullPointerException){
+            nullPointerException.printStackTrace();
+            return getResponseMessage(StatusEnum.BAD_REQUEST, nullPointerException.getMessage());
+        }catch (DataIntegrityViolationException dataIntegrityViolationException){
+            dataIntegrityViolationException.printStackTrace();
+            return getResponseMessage(StatusEnum.BAD_REQUEST, "해당 회원은 이미 좋아요를 한 회원입니다.");
+        }
+    }
+
+    @PatchMapping("/review/unlike")
+    public ResponseEntity<?> reviewUnLike(@RequestHeader(name = "Authorization") String token, String reviewId){
+        try{
+            constructorService.reviewUnLike(getMyUuId(token), reviewId);
+            return getResponseMessage(StatusEnum.OK, "좋아요 취소 성공", null);
+        }catch (NullPointerException nullPointerException){
+            nullPointerException.printStackTrace();
+            return getResponseMessage(StatusEnum.BAD_REQUEST, nullPointerException.getMessage());
+        }
+    }
+
 
     private String getMyUuId(String token) throws NullPointerException {
         return jwtTokenProvider.getUserUuid(token.substring(7));

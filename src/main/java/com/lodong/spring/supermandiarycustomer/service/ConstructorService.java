@@ -8,13 +8,11 @@ import com.lodong.spring.supermandiarycustomer.domain.file.ConstructorPriceTable
 import com.lodong.spring.supermandiarycustomer.domain.file.ReviewImageFile;
 import com.lodong.spring.supermandiarycustomer.domain.review.Review;
 import com.lodong.spring.supermandiarycustomer.domain.review.ReviewComment;
+import com.lodong.spring.supermandiarycustomer.domain.review.ReviewLike;
 import com.lodong.spring.supermandiarycustomer.domain.usercustomer.CustomerAddress;
 import com.lodong.spring.supermandiarycustomer.domain.usercustomer.UserCustomer;
 import com.lodong.spring.supermandiarycustomer.dto.constructor.*;
-import com.lodong.spring.supermandiarycustomer.repository.ConstructorRepository;
-import com.lodong.spring.supermandiarycustomer.repository.ConstructorWorkAreaRepository;
-import com.lodong.spring.supermandiarycustomer.repository.ReviewRepository;
-import com.lodong.spring.supermandiarycustomer.repository.UserCustomerRepository;
+import com.lodong.spring.supermandiarycustomer.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,6 +32,7 @@ public class ConstructorService {
     private final ConstructorRepository constructorRepository;
     private final ConstructorWorkAreaRepository constructorWorkAreaRepository;
     private final ReviewRepository reviewRepository;
+    private final ReviewLikeRepository reviewLikeRepository;
 
     @Transactional(readOnly = true)
     public List<ConstructorDTO> getConstructor(String customerId) {
@@ -69,6 +68,7 @@ public class ConstructorService {
         }
         return constructorDTOS;
     }
+
     @Transactional(readOnly = true)
     public ConstructorDetailDTO getConstructorDetail(String constructorId) {
         Constructor constructor = constructorRepository.findById(constructorId).orElseThrow(() -> new NullPointerException("해당 시공사는 존재하지 않습니다."));
@@ -107,17 +107,16 @@ public class ConstructorService {
     }
 
     @Transactional(readOnly = true)
-    public ReviewPageDTO getReviewPageInfo(String constructorId){
+    public ReviewPageDTO getReviewPageInfo(String uuid, String constructorId) {
         PageRequest pageRequest = PageRequest.of(0, 15, Sort.by("createAt").descending());
         Page<Review> reviewPage = reviewRepository.findByConstructor_Id(constructorId, pageRequest);
         List<Review> reviewList = Optional.of(reviewPage.getContent()).orElseGet(Collections::emptyList);
         List<String> fileNames = new ArrayList<>();
-        int totalPages = reviewPage.getTotalPages();
+        long totalCount = reviewRepository.countByConstructor_Id(constructorId);
         boolean hasNextPage = reviewPage.hasNext();
-        long totalCount = reviewPage.getTotalElements();
         List<ReviewDetailDTO> reviewDetailDTOS = new ArrayList<>();
 
-        for(Review review : reviewList){
+        for (Review review : reviewList) {
             List<String> likeUserIdList = new ArrayList<>();
             List<String> fileNameList = new ArrayList<>();
             ReviewDetailDTO reviewDetailDTO = new ReviewDetailDTO();
@@ -127,7 +126,11 @@ public class ConstructorService {
             reviewDetailDTO.setCreateAt(review.getCreateAt());
             reviewDetailDTO.setLikeCount(Optional.ofNullable(review.getReviewLikeList()).orElseGet(Collections::emptySet).size());
             Optional.ofNullable(review.getReviewLikeList()).orElseGet(Collections::emptySet).forEach(reviewLike -> {
-                likeUserIdList.add(reviewLike.getUserCustomer().getId());
+                String id = reviewLike.getUserCustomer().getId();
+                likeUserIdList.add(id);
+                if (id.equals(uuid)) {
+                    reviewDetailDTO.setMeCheckLike(true);
+                }
             });
             reviewDetailDTO.setLikeUserIdList(likeUserIdList);
             Optional.ofNullable(review.getReviewImageFileList()).orElseGet(Collections::emptySet).forEach(reviewImageFile -> {
@@ -135,7 +138,7 @@ public class ConstructorService {
                 fileNameList.add(reviewImageFile.getFileList().getName());
             });
             reviewDetailDTO.setFileNameList(fileNameList);
-            log.info("id : "+review.getId());
+            log.info("id : " + review.getId());
             Optional.ofNullable(review.getReviewComment()).ifPresent(reviewComment -> {
                 ReviewCommentDTO reviewCommentDTO = new ReviewCommentDTO(reviewComment.getId(), reviewComment.getConstructorName(), reviewComment.getCreateAt(), reviewComment.getContents());
                 reviewDetailDTO.setReviewComment(reviewCommentDTO);
@@ -145,19 +148,19 @@ public class ConstructorService {
             reviewDetailDTOS.add(reviewDetailDTO);
         }
 
-        return new ReviewPageDTO(totalCount, totalPages, hasNextPage, fileNames, reviewDetailDTOS);
+        return new ReviewPageDTO(totalCount, fileNames, reviewDetailDTOS);
     }
 
     @Transactional(readOnly = true)
-    public ReviewPagingDTO getReviewPage(String constructorId, int page){
+    public ReviewPagingDTO getReviewPage(String uuid, String constructorId, int page) {
         PageRequest pageRequest = PageRequest.of(page, 15, Sort.by("createAt").descending());
         Page<Review> reviewPage = reviewRepository.findByConstructor_Id(constructorId, pageRequest);
         List<Review> reviewList = Optional.of(reviewPage.getContent()).orElseGet(Collections::emptyList);
         int totalPages = reviewPage.getTotalPages();
-        boolean hasNextPage = reviewPage.hasNext();
+        boolean hasNextPage = reviewPage.isLast();
         List<ReviewDetailDTO> reviewDetailDTOS = new ArrayList<>();
 
-        for(Review review : reviewList){
+        for (Review review : reviewList) {
             List<String> likeUserIdList = new ArrayList<>();
             List<String> fileNameList = new ArrayList<>();
             ReviewDetailDTO reviewDetailDTO = new ReviewDetailDTO();
@@ -166,8 +169,13 @@ public class ConstructorService {
             reviewDetailDTO.setWriterName(review.getCustomerName());
             reviewDetailDTO.setCreateAt(review.getCreateAt());
             reviewDetailDTO.setLikeCount(Optional.ofNullable(review.getReviewLikeList()).orElseGet(Collections::emptySet).size());
+            reviewDetailDTO.setMeCheckLike(false);
             Optional.ofNullable(review.getReviewLikeList()).orElseGet(Collections::emptySet).forEach(reviewLike -> {
-                likeUserIdList.add(reviewLike.getUserCustomer().getId());
+                String id = reviewLike.getUserCustomer().getId();
+                likeUserIdList.add(id);
+                if (id.equals(uuid)) {
+                    reviewDetailDTO.setMeCheckLike(true);
+                }
             });
             reviewDetailDTO.setLikeUserIdList(likeUserIdList);
             Optional.ofNullable(review.getReviewImageFileList()).orElseGet(Collections::emptySet).forEach(reviewImageFile -> {
@@ -182,10 +190,30 @@ public class ConstructorService {
             reviewDetailDTO.setContents(review.getContents());
             reviewDetailDTOS.add(reviewDetailDTO);
         }
-
-        return new ReviewPagingDTO(totalPages, hasNextPage, reviewDetailDTOS);
+        return new ReviewPagingDTO(reviewPage.getTotalPages(), reviewDetailDTOS);
     }
 
+    @Transactional
+    public void reviewLike(String uuid, String reviewId) throws NullPointerException{
+        Review review = reviewRepository
+                .findById(reviewId)
+                .orElseThrow(()->new NullPointerException("해당 리뷰는 존재하지 않습니다."));
+        UserCustomer userCustomer = UserCustomer.builder()
+                .id(uuid)
+                .build();
+        ReviewLike reviewLike = ReviewLike.builder()
+                .id(UUID.randomUUID().toString())
+                .review(review)
+                .userCustomer(userCustomer)
+                .build();
 
+        reviewLikeRepository.save(reviewLike);
+    }
 
+    @Transactional
+    public void reviewUnLike(String uuid, String reviewId) throws NullPointerException{
+        ReviewLike reviewLike = reviewLikeRepository.findByReview_IdAndUserCustomer_Id(reviewId, uuid)
+                .orElseThrow(()-> new NullPointerException("해당 회원은 좋아요를 누르지 않았던 회원입니다."));
+        reviewLikeRepository.delete(reviewLike);
+    }
 }
