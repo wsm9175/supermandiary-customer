@@ -169,8 +169,6 @@ public class AuthController {
         return getResponseMessage(statusEnum, message, tokenInfo);
     }
 
-
-
     private TokenInfo loginAfterRegister(UserCustomer userCustomer) throws Exception {
         TokenInfo tokenInfo = authService.authCustomer(userCustomer);
         log.info(tokenInfo.toString());

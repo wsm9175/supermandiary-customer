@@ -7,7 +7,6 @@ import com.lodong.spring.supermandiarycustomer.domain.constructor.ConstructorWor
 import com.lodong.spring.supermandiarycustomer.domain.file.ConstructorPriceTableFile;
 import com.lodong.spring.supermandiarycustomer.domain.file.ReviewImageFile;
 import com.lodong.spring.supermandiarycustomer.domain.review.Review;
-import com.lodong.spring.supermandiarycustomer.domain.review.ReviewComment;
 import com.lodong.spring.supermandiarycustomer.domain.review.ReviewLike;
 import com.lodong.spring.supermandiarycustomer.domain.usercustomer.CustomerAddress;
 import com.lodong.spring.supermandiarycustomer.domain.usercustomer.UserCustomer;
@@ -18,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -124,6 +122,7 @@ public class ConstructorService {
             reviewDetailDTO.setWriterId(review.getCustomer().getId());
             reviewDetailDTO.setWriterName(review.getCustomerName());
             reviewDetailDTO.setCreateAt(review.getCreateAt());
+            reviewDetailDTO.setSatisFaction(review.isSatisfaction());
             reviewDetailDTO.setLikeCount(Optional.ofNullable(review.getReviewLikeList()).orElseGet(Collections::emptySet).size());
             Optional.ofNullable(review.getReviewLikeList()).orElseGet(Collections::emptySet).forEach(reviewLike -> {
                 String id = reviewLike.getUserCustomer().getId();
@@ -170,6 +169,7 @@ public class ConstructorService {
             reviewDetailDTO.setCreateAt(review.getCreateAt());
             reviewDetailDTO.setLikeCount(Optional.ofNullable(review.getReviewLikeList()).orElseGet(Collections::emptySet).size());
             reviewDetailDTO.setMeCheckLike(false);
+            reviewDetailDTO.setSatisFaction(review.isSatisfaction());
             Optional.ofNullable(review.getReviewLikeList()).orElseGet(Collections::emptySet).forEach(reviewLike -> {
                 String id = reviewLike.getUserCustomer().getId();
                 likeUserIdList.add(id);

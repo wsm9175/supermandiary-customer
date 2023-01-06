@@ -17,6 +17,7 @@ public class ReviewDetailDTO {
     private String writerName;
     private LocalDate createAt;
     private int likeCount;
+    private boolean isSatisFaction;
     private boolean meCheckLike;
     private List<String> likeUserIdList;
     private List<String> fileNameList;
