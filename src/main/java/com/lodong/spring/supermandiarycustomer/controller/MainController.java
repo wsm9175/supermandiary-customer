@@ -1,6 +1,7 @@
 package com.lodong.spring.supermandiarycustomer.controller;
 
 import com.lodong.spring.supermandiarycustomer.dto.constructor.ConstructorDTO;
+import com.lodong.spring.supermandiarycustomer.dto.main.AlarmDTO;
 import com.lodong.spring.supermandiarycustomer.dto.main.MainInfoDTO;
 import com.lodong.spring.supermandiarycustomer.dto.main.MyAddressDTO;
 import com.lodong.spring.supermandiarycustomer.jwt.JwtTokenProvider;
@@ -8,10 +9,7 @@ import com.lodong.spring.supermandiarycustomer.responseentity.StatusEnum;
 import com.lodong.spring.supermandiarycustomer.service.MainService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -67,6 +65,23 @@ public class MainController {
     public ResponseEntity<?> findConstructor(String keyword){
         List<ConstructorDTO> constructorDTOList = mainService.findConstructor(keyword);
         return getResponseMessage(StatusEnum.OK, "시공사 검색 결과", constructorDTOList);
+    }
+
+    @GetMapping("/alarm")
+    public ResponseEntity<?> getAlarm(@RequestHeader(name = "Authorization") String token){
+        List<AlarmDTO> alarmDTOS = mainService.getAlarmList(getMyUuId(token));
+        return getResponseMessage(StatusEnum.OK, "알림 목록", alarmDTOS);
+    }
+
+    @PatchMapping("/alarm/read")
+    public ResponseEntity<?> readAlarm(@RequestHeader(name = "Authorization") String token, String alarmId){
+        try{
+            mainService.readAlarm(alarmId);
+            return getResponseMessage(StatusEnum.OK, "알림 읽음 처리", null);
+        }catch (NullPointerException nullPointerException){
+            nullPointerException.printStackTrace();
+            return getResponseMessage(StatusEnum.BAD_REQUEST, nullPointerException.getMessage());
+        }
     }
 
     private String getMyUuId(String token) throws NullPointerException {

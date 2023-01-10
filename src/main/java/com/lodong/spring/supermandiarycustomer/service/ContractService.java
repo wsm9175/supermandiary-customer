@@ -1,6 +1,7 @@
 package com.lodong.spring.supermandiarycustomer.service;
 
 import com.lodong.spring.supermandiarycustomer.domain.constructor.Constructor;
+import com.lodong.spring.supermandiarycustomer.domain.constructor.ConstructorAlarm;
 import com.lodong.spring.supermandiarycustomer.domain.constructor.ConstructorProduct;
 import com.lodong.spring.supermandiarycustomer.domain.request_order.RequestOrder;
 import com.lodong.spring.supermandiarycustomer.domain.request_order.RequestOrderProduct;
@@ -10,6 +11,7 @@ import com.lodong.spring.supermandiarycustomer.dto.contract.ConstructorProductDT
 import com.lodong.spring.supermandiarycustomer.dto.contract.ContractDTO;
 import com.lodong.spring.supermandiarycustomer.dto.contract.MyAddressDTO;
 import com.lodong.spring.supermandiarycustomer.dto.contract.WriteContractInfoDTO;
+import com.lodong.spring.supermandiarycustomer.enumvalue.ConstructorAlarmEnum;
 import com.lodong.spring.supermandiarycustomer.enumvalue.RequestOrderEnum;
 import com.lodong.spring.supermandiarycustomer.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -29,6 +32,7 @@ public class ContractService {
     private final RequestOrderRepository requestOrderRepository;
     private final ConstructorProductRepository constructorProductRepository;
     private final RequestOrderProductRepository requestOrderProductRepository;
+    private final ConstructorAlarmRepository constructorAlarmRepository;
 
     @Transactional(readOnly = true)
     public WriteContractInfoDTO getInfo(String uuid, String constructorId) {
@@ -134,5 +138,20 @@ public class ContractService {
                 .build();
 
         requestOrderProductRepository.save(requestOrderProduct);
+
+        sendAlarm(constructor, ConstructorAlarmEnum.RECEIVE_REQUEST_ORDER, requestOrderId);
+    }
+
+    private void sendAlarm(Constructor constructor,ConstructorAlarmEnum constructorAlarmEnum, String content){
+        ConstructorAlarm constructorAlarm = ConstructorAlarm.builder()
+                .id(UUID.randomUUID().toString())
+                .constructor(constructor)
+                .kind(constructorAlarmEnum.toString())
+                .detail(constructorAlarmEnum.label())
+                .content(content)
+                .createAt(LocalDateTime.now())
+                .build();
+
+        constructorAlarmRepository.save(constructorAlarm);
     }
 }

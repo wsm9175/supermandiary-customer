@@ -1,5 +1,7 @@
 package com.lodong.spring.supermandiarycustomer.service;
 
+import com.lodong.spring.supermandiarycustomer.domain.constructor.Constructor;
+import com.lodong.spring.supermandiarycustomer.domain.constructor.ConstructorAlarm;
 import com.lodong.spring.supermandiarycustomer.domain.constructor.ConstructorProductWorkList;
 import com.lodong.spring.supermandiarycustomer.domain.estimate.Estimate;
 import com.lodong.spring.supermandiarycustomer.domain.request_order.RequestOrder;
@@ -7,6 +9,7 @@ import com.lodong.spring.supermandiarycustomer.domain.working.NowWorkInfo;
 import com.lodong.spring.supermandiarycustomer.domain.working.WorkDetail;
 import com.lodong.spring.supermandiarycustomer.domain.working.Working;
 import com.lodong.spring.supermandiarycustomer.dto.estimate.*;
+import com.lodong.spring.supermandiarycustomer.enumvalue.ConstructorAlarmEnum;
 import com.lodong.spring.supermandiarycustomer.enumvalue.EstimateEnum;
 import com.lodong.spring.supermandiarycustomer.enumvalue.RequestOrderEnum;
 import com.lodong.spring.supermandiarycustomer.repository.*;
@@ -15,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +33,7 @@ public class EstimateService {
     private final NowWorkInfoRepository nowWorkInfoRepository;
     private final WorkDetailRepository workDetailRepository;
     private final WorkingRepository workingRepository;
+    private final ConstructorAlarmRepository constructorAlarmRepository;
 
     @Transactional(readOnly = true)
     public List<MyEstimateDTO> getMyEstimateList(String uuid) throws NullPointerException {
@@ -95,6 +100,7 @@ public class EstimateService {
         //견적서 상태 반려로 변경
         estimate.setStatus(EstimateEnum.REJECT.label());
         estimateRepository.save(estimate);
+        sendAlarm(estimate.getConstructor(), ConstructorAlarmEnum.REJECT_ESTIMATE, requestOrder.getId());
     }
 
     @Transactional
@@ -173,6 +179,19 @@ public class EstimateService {
         workingRepository.save(working);
         //workDetailRepository.saveAll(workDetails);
         //nowWorkInfoRepository.save(nowWorkInfo);
+    }
+
+    private void sendAlarm(Constructor constructor, ConstructorAlarmEnum constructorAlarmEnum, String content){
+        ConstructorAlarm constructorAlarm = ConstructorAlarm.builder()
+                .id(UUID.randomUUID().toString())
+                .constructor(constructor)
+                .kind(constructorAlarmEnum.toString())
+                .detail(constructorAlarmEnum.label())
+                .content(content)
+                .createAt(LocalDateTime.now())
+                .build();
+
+        constructorAlarmRepository.save(constructorAlarm);
     }
 
 }

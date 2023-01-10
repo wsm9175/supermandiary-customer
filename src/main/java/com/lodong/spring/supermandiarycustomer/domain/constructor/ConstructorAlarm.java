@@ -1,4 +1,4 @@
-package com.lodong.spring.supermandiarycustomer.domain.usercustomer;
+package com.lodong.spring.supermandiarycustomer.domain.constructor;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,18 +14,18 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class UserCustomerAlarm {
+public class ConstructorAlarm {
     @Id
     private String id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_customer_id")
-    private UserCustomer userCustomer;
+    @JoinColumn(name = "constructor_id")
+    private Constructor constructor;
     @Column(nullable = false)
     private String kind;
-    @Column(nullable = false)
-    private String content;
     @Column(nullable = true)
     private String detail;
+    @Column(nullable = false)
+    private String content;
     @Column(nullable = false)
     private LocalDateTime createAt;
     @Column(nullable = false)

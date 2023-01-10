@@ -77,4 +77,6 @@ public class EstimateController {
     private String getMyUuId(String token) throws NullPointerException {
         return jwtTokenProvider.getUserUuid(token.substring(7));
     }
+
+
 }

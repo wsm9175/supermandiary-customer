@@ -7,13 +7,11 @@ import com.lodong.spring.supermandiarycustomer.domain.estimate.Estimate;
 import com.lodong.spring.supermandiarycustomer.domain.request_order.RequestOrder;
 import com.lodong.spring.supermandiarycustomer.domain.usercustomer.CustomerAddress;
 import com.lodong.spring.supermandiarycustomer.domain.usercustomer.UserCustomer;
+import com.lodong.spring.supermandiarycustomer.domain.usercustomer.UserCustomerAlarm;
 import com.lodong.spring.supermandiarycustomer.domain.working.WorkDetail;
 import com.lodong.spring.supermandiarycustomer.domain.working.Working;
 import com.lodong.spring.supermandiarycustomer.dto.constructor.ConstructorDTO;
-import com.lodong.spring.supermandiarycustomer.dto.main.MainInfoDTO;
-import com.lodong.spring.supermandiarycustomer.dto.main.MyAddressDTO;
-import com.lodong.spring.supermandiarycustomer.dto.main.MyEstimateDTO;
-import com.lodong.spring.supermandiarycustomer.dto.main.ScheduledWorkDTO;
+import com.lodong.spring.supermandiarycustomer.dto.main.*;
 import com.lodong.spring.supermandiarycustomer.enumvalue.EstimateEnum;
 import com.lodong.spring.supermandiarycustomer.enumvalue.RequestOrderEnum;
 import com.lodong.spring.supermandiarycustomer.repository.*;
@@ -36,6 +34,7 @@ public class MainService {
     private final RequestOrderRepository requestOrderRepository;
     private final EstimateRepository estimateRepository;
     private final ConstructorRepository constructorRepository;
+    private final UserCustomerAlarmRepository userCustomerAlarmRepository;
 
     @Transactional(readOnly = true)
     public List<MyAddressDTO> getMyAddressList(String uuid) {
@@ -152,7 +151,36 @@ public class MainService {
             }
             constructorDTOList.add(constructorDTO);
         });
-
         return constructorDTOList;
+    }
+
+    @Transactional(readOnly = true)
+    public List<AlarmDTO> getAlarmList(String uuid){
+        List<UserCustomerAlarm> userCustomerAlarms = userCustomerAlarmRepository.findByUserCustomer_IdAndRead(uuid, false)
+                .orElseGet(Collections::emptyList);
+        List<AlarmDTO> alarmDTOS = new ArrayList<>();
+        userCustomerAlarms.forEach(userCustomerAlarm -> {
+            AlarmDTO alarmDTO = new AlarmDTO(userCustomerAlarm.getId(), userCustomerAlarm.getKind(), userCustomerAlarm.getContent(), "해당 견적서는 삭제되었습니다.");
+            estimateRepository.findById(userCustomerAlarm.getContent()).ifPresent(estimate1 -> {
+                String constructorName = estimate1.getConstructor().getName();
+                String homeName = "";
+                if(estimate1.getApartment() != null){
+                    homeName = estimate1.getApartment().getName();
+                }else if(estimate1.getOtherHome() != null){
+                    homeName = estimate1.getOtherHome().getName();
+                }
+                alarmDTO.setContent(constructorName + "에서 " + homeName + "건의 견적서가 도착했습니다.");
+            });
+            alarmDTOS.add(alarmDTO);
+        });
+        return alarmDTOS;
+    }
+
+    @Transactional(readOnly = true)
+    public void readAlarm(String alarmId) throws NullPointerException{
+        userCustomerAlarmRepository.findById(alarmId)
+                .orElseThrow(()-> new NullPointerException("해당 알림은 존재하지 않습니다."));
+
+        userCustomerAlarmRepository.updateReadAlarm(true, alarmId);
     }
 }
