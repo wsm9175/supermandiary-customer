@@ -29,5 +29,5 @@ public class ConstructorAlarm {
     @Column(nullable = false)
     private LocalDateTime createAt;
     @Column(nullable = false)
-    private boolean isRead;
+    private boolean isReadAlarm;
 }

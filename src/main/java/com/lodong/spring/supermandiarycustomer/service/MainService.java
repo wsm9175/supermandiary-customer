@@ -155,20 +155,15 @@ public class MainService {
     }
 
     @Transactional(readOnly = true)
-    public List<AlarmDTO> getAlarmList(String uuid){
-        List<UserCustomerAlarm> userCustomerAlarms = userCustomerAlarmRepository.findByUserCustomer_IdAndRead(uuid, false)
+    public List<AlarmDTO> getAlarmList(String uuid) {
+        List<UserCustomerAlarm> userCustomerAlarms = userCustomerAlarmRepository.findByUserCustomer_IdAndIsReadAlarm(uuid, false)
                 .orElseGet(Collections::emptyList);
         List<AlarmDTO> alarmDTOS = new ArrayList<>();
         userCustomerAlarms.forEach(userCustomerAlarm -> {
             AlarmDTO alarmDTO = new AlarmDTO(userCustomerAlarm.getId(), userCustomerAlarm.getKind(), userCustomerAlarm.getContent(), "해당 견적서는 삭제되었습니다.");
             estimateRepository.findById(userCustomerAlarm.getContent()).ifPresent(estimate1 -> {
                 String constructorName = estimate1.getConstructor().getName();
-                String homeName = "";
-                if(estimate1.getApartment() != null){
-                    homeName = estimate1.getApartment().getName();
-                }else if(estimate1.getOtherHome() != null){
-                    homeName = estimate1.getOtherHome().getName();
-                }
+                String homeName = estimate1.getRequestOrder().getApartment() == null ? estimate1.getRequestOrder().getOtherHome().getName() : estimate1.getRequestOrder().getApartment().getName();
                 alarmDTO.setContent(constructorName + "에서 " + homeName + "건의 견적서가 도착했습니다.");
             });
             alarmDTOS.add(alarmDTO);
@@ -176,10 +171,10 @@ public class MainService {
         return alarmDTOS;
     }
 
-    @Transactional(readOnly = true)
-    public void readAlarm(String alarmId) throws NullPointerException{
+    @Transactional
+    public void readAlarm(String alarmId) throws NullPointerException {
         userCustomerAlarmRepository.findById(alarmId)
-                .orElseThrow(()-> new NullPointerException("해당 알림은 존재하지 않습니다."));
+                .orElseThrow(() -> new NullPointerException("해당 알림은 존재하지 않습니다."));
 
         userCustomerAlarmRepository.updateReadAlarm(true, alarmId);
     }

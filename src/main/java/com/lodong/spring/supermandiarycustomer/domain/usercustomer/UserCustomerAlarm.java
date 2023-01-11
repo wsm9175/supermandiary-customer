@@ -14,6 +14,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 
+@NamedEntityGraph(name = "get-with-all-user-customer-alarm", attributeNodes = {
+        @NamedAttributeNode(value = "userCustomer")
+})
+
 public class UserCustomerAlarm {
     @Id
     private String id;
@@ -29,5 +33,5 @@ public class UserCustomerAlarm {
     @Column(nullable = false)
     private LocalDateTime createAt;
     @Column(nullable = false)
-    private boolean isRead;
+    private boolean isReadAlarm;
 }
