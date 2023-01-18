@@ -1,7 +1,7 @@
 package com.lodong.spring.supermandiarycustomer.controller;
 import com.lodong.spring.supermandiarycustomer.dto.estimate.AgreeDTO;
-import com.lodong.spring.supermandiarycustomer.dto.estimate.EstimateInfoDto;
-import com.lodong.spring.supermandiarycustomer.dto.estimate.MyEstimateDTO;
+import com.lodong.spring.supermandiarycustomer.dto.estimate.RequestOrderDTO;
+import com.lodong.spring.supermandiarycustomer.dto.estimate.MyRequestOrderDTO;
 import com.lodong.spring.supermandiarycustomer.dto.estimate.RejectEstimateDTO;
 import com.lodong.spring.supermandiarycustomer.jwt.JwtTokenProvider;
 import com.lodong.spring.supermandiarycustomer.responseentity.StatusEnum;
@@ -31,7 +31,7 @@ public class EstimateController {
     public ResponseEntity<?> getMyEstimateList(@RequestHeader(name = "Authorization") String token) {
         String uuid = getMyUuId(token);
         try {
-            List<MyEstimateDTO> estimateDTOList = estimateService.getMyEstimateList(uuid);
+            List<MyRequestOrderDTO> estimateDTOList = estimateService.getMyEstimateList(uuid);
             return getResponseMessage(StatusEnum.OK, "회원 견적서 목록", estimateDTOList);
         } catch (NullPointerException nullPointerException) {
             nullPointerException.printStackTrace();
@@ -40,10 +40,10 @@ public class EstimateController {
     }
 
     @GetMapping("/show")
-    public ResponseEntity<?> getEstimateDetail(String estimateId) {
+    public ResponseEntity<?> getEstimateDetail(String requestOrderId) {
         try {
-            EstimateInfoDto estimateInfoDto = estimateService.getEstimate(estimateId);
-            return getResponseMessage(StatusEnum.OK, "견적서 상세 정보", estimateInfoDto);
+            RequestOrderDTO requestOrderDTO = estimateService.getEstimate(requestOrderId);
+            return getResponseMessage(StatusEnum.OK, "계약서 상세 정보", requestOrderDTO);
         } catch (NullPointerException nullPointerException) {
             return getResponseMessage(StatusEnum.BAD_REQUEST, nullPointerException.getMessage());
         }

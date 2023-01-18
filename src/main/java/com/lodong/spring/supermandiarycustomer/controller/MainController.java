@@ -4,6 +4,7 @@ import com.lodong.spring.supermandiarycustomer.dto.constructor.ConstructorDTO;
 import com.lodong.spring.supermandiarycustomer.dto.main.AlarmDTO;
 import com.lodong.spring.supermandiarycustomer.dto.main.MainInfoDTO;
 import com.lodong.spring.supermandiarycustomer.dto.main.MyAddressDTO;
+import com.lodong.spring.supermandiarycustomer.dto.main.ReadAllAlarmDTO;
 import com.lodong.spring.supermandiarycustomer.jwt.JwtTokenProvider;
 import com.lodong.spring.supermandiarycustomer.responseentity.StatusEnum;
 import com.lodong.spring.supermandiarycustomer.service.MainService;
@@ -82,6 +83,12 @@ public class MainController {
             nullPointerException.printStackTrace();
             return getResponseMessage(StatusEnum.BAD_REQUEST, nullPointerException.getMessage());
         }
+    }
+
+    @PatchMapping("/alarm/read-all")
+    public ResponseEntity<?> readAllAlarm(@RequestHeader(name = "Authorization") String token, @RequestBody ReadAllAlarmDTO readAllAlarmDTO){
+        mainService.readAllAlarm(readAllAlarmDTO);
+        return getResponseMessage(StatusEnum.OK, "모든 알림 읽음 처리", null);
     }
 
     private String getMyUuId(String token) throws NullPointerException {

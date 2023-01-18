@@ -12,6 +12,7 @@ import com.lodong.spring.supermandiarycustomer.domain.working.WorkDetail;
 import com.lodong.spring.supermandiarycustomer.domain.working.Working;
 import com.lodong.spring.supermandiarycustomer.dto.constructor.ConstructorDTO;
 import com.lodong.spring.supermandiarycustomer.dto.main.*;
+import com.lodong.spring.supermandiarycustomer.dto.main.MyEstimateDTO;
 import com.lodong.spring.supermandiarycustomer.enumvalue.EstimateEnum;
 import com.lodong.spring.supermandiarycustomer.enumvalue.RequestOrderEnum;
 import com.lodong.spring.supermandiarycustomer.repository.*;
@@ -119,7 +120,7 @@ public class MainService {
             }
             for (WorkDetail workDetail : workDetailList) {
                 if (workDetail.getEstimateWorkDate() != null && workDetail.getEstimateWorkTime() != null) {
-                    ScheduledWorkDTO scheduledWorkDTO = new ScheduledWorkDTO(workDetail.getId(), workDetail.getEstimateWorkDate(), workDetail.getEstimateWorkTime(), working.getConstructorProduct().getName(), workDetail.getName());
+                    ScheduledWorkDTO scheduledWorkDTO = new ScheduledWorkDTO(workDetail.getId(), workDetail.getEstimateWorkDate(), workDetail.getEstimateWorkTime(), working.getConstructorProduct().getProduct().getName(), workDetail.getName());
                     scheduledWorkDTOS.add(scheduledWorkDTO);
                 }
             }
@@ -160,11 +161,11 @@ public class MainService {
                 .orElseGet(Collections::emptyList);
         List<AlarmDTO> alarmDTOS = new ArrayList<>();
         userCustomerAlarms.forEach(userCustomerAlarm -> {
-            AlarmDTO alarmDTO = new AlarmDTO(userCustomerAlarm.getId(), userCustomerAlarm.getKind(), userCustomerAlarm.getContent(), "해당 견적서는 삭제되었습니다.");
+            AlarmDTO alarmDTO = new AlarmDTO(userCustomerAlarm.getId(), userCustomerAlarm.getKind(), userCustomerAlarm.getContent(), "해당 견적서는 삭제되었습니다.", userCustomerAlarm.getCreateAt());
             estimateRepository.findById(userCustomerAlarm.getContent()).ifPresent(estimate1 -> {
                 String constructorName = estimate1.getConstructor().getName();
                 String homeName = estimate1.getRequestOrder().getApartment() == null ? estimate1.getRequestOrder().getOtherHome().getName() : estimate1.getRequestOrder().getApartment().getName();
-                alarmDTO.setContent(constructorName + "에서 " + homeName + "건의 견적서가 도착했습니다.");
+                alarmDTO.setContent(constructorName + " " + homeName);
             });
             alarmDTOS.add(alarmDTO);
         });
@@ -177,5 +178,12 @@ public class MainService {
                 .orElseThrow(() -> new NullPointerException("해당 알림은 존재하지 않습니다."));
 
         userCustomerAlarmRepository.updateReadAlarm(true, alarmId);
+    }
+
+    @Transactional
+    public void readAllAlarm(ReadAllAlarmDTO readAllAlarmDTOS){
+        for(String alarmId : readAllAlarmDTOS.getAlarmList()){
+            userCustomerAlarmRepository.updateReadAlarm(true, alarmId);
+        }
     }
 }

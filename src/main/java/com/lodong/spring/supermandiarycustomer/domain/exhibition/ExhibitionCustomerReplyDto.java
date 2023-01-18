@@ -7,5 +7,4 @@ public class ExhibitionCustomerReplyDto {
     private String boardId;
     private String comment;
     private String commentGroupId;
-    private int sequence;
 }

@@ -86,7 +86,7 @@ public class ExhibitionController {
     @PostMapping("/board/reply")
     public ResponseEntity<?> addReply(@RequestHeader("Authorization") String token, @RequestBody ExhibitionCustomerReplyDto exhibitionCustomerReplyDto) {
         try {
-            List<ExhibitionCommentDTO> exhibitionCommentDTOList = exhibitionService.addReply(getMyUuId(token), exhibitionCustomerReplyDto.getBoardId(), exhibitionCustomerReplyDto.getComment(), exhibitionCustomerReplyDto.getCommentGroupId(), exhibitionCustomerReplyDto.getSequence());
+            List<ExhibitionCommentDTO> exhibitionCommentDTOList = exhibitionService.addReply(getMyUuId(token), exhibitionCustomerReplyDto.getBoardId(), exhibitionCustomerReplyDto.getComment(), exhibitionCustomerReplyDto.getCommentGroupId(), 1);
             return getResponseMessage(StatusEnum.OK, "대댓글 삽입 성공 업데이트 대댓글 목록", exhibitionCommentDTOList);
         }catch (DataIntegrityViolationException dataIntegrityViolationException){
             return getResponseMessage(StatusEnum.BAD_REQUEST, dataIntegrityViolationException.getMessage());

@@ -142,7 +142,7 @@ public class ConstructorService {
                 ReviewCommentDTO reviewCommentDTO = new ReviewCommentDTO(reviewComment.getId(), reviewComment.getConstructorName(), reviewComment.getCreateAt(), reviewComment.getContents());
                 reviewDetailDTO.setReviewComment(reviewCommentDTO);
             });
-            reviewDetailDTO.setProductName(review.getWorking().getConstructorProduct().getName());
+            reviewDetailDTO.setProductName(review.getWorking().getConstructorProduct().getProduct().getName());
             reviewDetailDTO.setContents(review.getContents());
             reviewDetailDTOS.add(reviewDetailDTO);
         }
@@ -186,7 +186,7 @@ public class ConstructorService {
                 ReviewCommentDTO reviewCommentDTO = new ReviewCommentDTO(reviewComment.getId(), reviewComment.getConstructorName(), reviewComment.getCreateAt(), reviewComment.getContents());
                 reviewDetailDTO.setReviewComment(reviewCommentDTO);
             });
-            reviewDetailDTO.setProductName(review.getWorking().getConstructorProduct().getName());
+            reviewDetailDTO.setProductName(review.getWorking().getConstructorProduct().getProduct().getName());
             reviewDetailDTO.setContents(review.getContents());
             reviewDetailDTOS.add(reviewDetailDTO);
         }

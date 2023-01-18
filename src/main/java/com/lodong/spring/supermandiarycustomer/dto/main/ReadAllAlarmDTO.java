@@ -9,7 +9,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MainInfoDTO {
-    private List<ScheduledWorkDTO> scheduledWorkList;
-    private MyEstimateDTO myEstimateDTO;
+public class ReadAllAlarmDTO {
+    private List<String> alarmList;
 }

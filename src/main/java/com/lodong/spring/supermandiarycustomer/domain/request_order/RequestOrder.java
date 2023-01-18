@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lodong.spring.supermandiarycustomer.domain.apart.Apartment;
 import com.lodong.spring.supermandiarycustomer.domain.apart.OtherHome;
 import com.lodong.spring.supermandiarycustomer.domain.constructor.Constructor;
+import com.lodong.spring.supermandiarycustomer.domain.constructor.ConstructorProduct;
+import com.lodong.spring.supermandiarycustomer.domain.constructor.Product;
 import com.lodong.spring.supermandiarycustomer.domain.estimate.Estimate;
 import com.lodong.spring.supermandiarycustomer.domain.usercustomer.UserCustomer;
 import jakarta.persistence.*;
@@ -11,6 +13,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Entity
@@ -20,6 +23,15 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
+@NamedEntityGraph( name = "get-all-with-request_order", attributeNodes = {
+        @NamedAttributeNode(value = "constructor"),
+        @NamedAttributeNode(value = "customer"),
+        @NamedAttributeNode(value = "apartment"),
+        @NamedAttributeNode(value = "apartment"),
+        @NamedAttributeNode(value = "otherHome")
+}
+)
 
 public class RequestOrder {
     @Id
@@ -73,11 +85,13 @@ public class RequestOrder {
     private boolean cashReceiptPurpose;
     @Column(nullable = true)
     private String cashReceiptPhoneNumber;
-
-
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "requestOrder")
-    private RequestOrderProduct requestOrderProduct;
+    @Column(nullable = false)
+    private String phoneNumber;
+    @Column(nullable = false)
+    private LocalDateTime createAt;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private ConstructorProduct constructorProduct;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "requestOrder")
     private Estimate estimate;

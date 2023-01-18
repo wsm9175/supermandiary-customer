@@ -96,7 +96,7 @@ public class Working {
     @OneToOne(mappedBy = "working", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private NowWorkInfo nowWorkInfo;
 
-    @OneToOne(mappedBy = "working", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Review review;
+    @OneToMany(mappedBy = "working", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Review> review;
 
 }

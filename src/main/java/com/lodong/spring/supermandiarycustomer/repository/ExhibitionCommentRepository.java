@@ -28,6 +28,10 @@ public interface ExhibitionCommentRepository extends JpaRepository<ExhibitionCom
     @Query(value = "UPDATE ExhibitionComment u set u.comment =:comment where u.userCustomer.id =:userId and u.id =:commentId")
     public void updateComment(String comment, String userId, String commentId);
 
+    public void deleteAllByCommentGroupId(String commentGroupId);
+
+    public long countByCommentGroupId(String commentGroupId);
+
 
     @EntityGraph(value = "get-with-all-exhibiton-comment", type = EntityGraph.EntityGraphType.LOAD)
     public Optional<ExhibitionComment> findByUserCustomer_IdAndId(String id, String commentId);

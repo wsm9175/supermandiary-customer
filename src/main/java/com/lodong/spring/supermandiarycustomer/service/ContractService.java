@@ -4,7 +4,6 @@ import com.lodong.spring.supermandiarycustomer.domain.constructor.Constructor;
 import com.lodong.spring.supermandiarycustomer.domain.constructor.ConstructorAlarm;
 import com.lodong.spring.supermandiarycustomer.domain.constructor.ConstructorProduct;
 import com.lodong.spring.supermandiarycustomer.domain.request_order.RequestOrder;
-import com.lodong.spring.supermandiarycustomer.domain.request_order.RequestOrderProduct;
 import com.lodong.spring.supermandiarycustomer.domain.usercustomer.CustomerAddress;
 import com.lodong.spring.supermandiarycustomer.domain.usercustomer.UserCustomer;
 import com.lodong.spring.supermandiarycustomer.dto.contract.ConstructorProductDTO;
@@ -31,7 +30,6 @@ public class ContractService {
     private final CustomerAddressRepository customerAddressRepository;
     private final RequestOrderRepository requestOrderRepository;
     private final ConstructorProductRepository constructorProductRepository;
-    private final RequestOrderProductRepository requestOrderProductRepository;
     private final ConstructorAlarmRepository constructorAlarmRepository;
 
     @Transactional(readOnly = true)
@@ -64,7 +62,7 @@ public class ContractService {
                 });
         Optional.ofNullable(constructor.getConstructorProducts()).orElseGet(Collections::emptyList).stream()
                 .forEach(constructorProduct -> {
-                    ConstructorProductDTO constructorProductDTO = new ConstructorProductDTO(constructorProduct.getId(), constructorProduct.getName());
+                    ConstructorProductDTO constructorProductDTO = new ConstructorProductDTO(constructorProduct.getId(), constructorProduct.getProduct().getName());
                     constructorProductDTOS.add(constructorProductDTO);
                 });
 
@@ -87,7 +85,6 @@ public class ContractService {
                 .orElseThrow(()-> new NullPointerException("해당 물건은 존재하지 않습니다."));
 
         RequestOrder requestOrder = null;
-        RequestOrderProduct requestOrderProduct;
         String requestOrderId = UUID.randomUUID().toString();
         if (customerAddress.getApartment() != null) {
             requestOrder = RequestOrder.builder()
@@ -107,6 +104,9 @@ public class ContractService {
                     .isCashReceipt(contractDTO.isCashReceipt())
                     .cashReceiptPurpose(contractDTO.isCashReceiptPurpose())
                     .cashReceiptPhoneNumber(contractDTO.getCashReceiptPhoneNumber())
+                    .phoneNumber(contractDTO.getPhoneNumber())
+                    .createAt(LocalDateTime.now())
+                    .constructorProduct(constructorProduct)
                     .build();
 
         } else if (customerAddress.getOtherHome() != null) {
@@ -127,17 +127,12 @@ public class ContractService {
                     .isCashReceipt(contractDTO.isCashReceipt())
                     .cashReceiptPurpose(contractDTO.isCashReceiptPurpose())
                     .cashReceiptPhoneNumber(contractDTO.getCashReceiptPhoneNumber())
+                    .phoneNumber(contractDTO.getPhoneNumber())
+                    .createAt(LocalDateTime.now())
+                    .constructorProduct(constructorProduct)
                     .build();
         }
-
         requestOrderRepository.save(requestOrder);
-
-        requestOrderProduct = RequestOrderProduct.builder()
-                .requestOrder(requestOrder)
-                .constructorProduct(constructorProduct)
-                .build();
-
-        requestOrderProductRepository.save(requestOrderProduct);
 
         sendAlarm(constructor, ConstructorAlarmEnum.RECEIVE_REQUEST_ORDER, requestOrderId);
     }
@@ -146,7 +141,7 @@ public class ContractService {
         ConstructorAlarm constructorAlarm = ConstructorAlarm.builder()
                 .id(UUID.randomUUID().toString())
                 .constructor(constructor)
-                .kind(constructorAlarmEnum.toString())
+                .kind(constructorAlarmEnum.label())
                 .detail(constructorAlarmEnum.label())
                 .content(content)
                 .createAt(LocalDateTime.now())

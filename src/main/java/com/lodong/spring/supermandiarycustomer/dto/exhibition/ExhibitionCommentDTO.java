@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 public class ExhibitionCommentDTO {
     private String id;
     private String commentGroupId;
-    private int sequence;
     private String comment;
     private String constructorName;
     private String userCustomerName;

@@ -98,15 +98,15 @@ public class ExhibitionService {
         ExhibitionBoard exhibitionBoard = exhibitionBoardRepository.findById(boardId).orElseThrow(() -> new NullPointerException("해당 게시물은 존재하지 않습니다."));
         List<ExhibitionCommentDTO> exhibitionCommentDTOList = new ArrayList<>();
         exhibitionCommentRepository.findByExhibitionBoard_IdAndSequence(boardId, 0).orElseGet(Collections::emptyList).forEach(exhibitionComment -> {
-            ExhibitionCommentDTO  exhibitionCommentDTO = null;
+            ExhibitionCommentDTO exhibitionCommentDTO = null;
             if (exhibitionComment.getConstructor() != null) {
-                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment.getId(), exhibitionComment.getCommentGroupId(), exhibitionComment.getSequence(), exhibitionComment.getComment(), exhibitionComment.getConstructor().getName(), null, false, exhibitionComment.getCreateAt(), exhibitionComment.isHasCommentGroup());
-            }else if(exhibitionComment.getUserCustomer() != null){
+                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment.getId(), exhibitionComment.getCommentGroupId(), exhibitionComment.getComment(), exhibitionComment.getConstructor().getName(), null, false, exhibitionComment.getCreateAt(), exhibitionComment.isHasCommentGroup());
+            } else if (exhibitionComment.getUserCustomer() != null) {
                 boolean isMine = false;
-                if(exhibitionComment.getUserCustomer().getId().equals(uuid)){
+                if (exhibitionComment.getUserCustomer().getId().equals(uuid)) {
                     isMine = true;
                 }
-                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment.getId(), exhibitionComment.getCommentGroupId(), exhibitionComment.getSequence(), exhibitionComment.getComment(), null, exhibitionComment.getUserCustomer().getName(), isMine, exhibitionComment.getCreateAt(), exhibitionComment.isHasCommentGroup());
+                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment.getId(), exhibitionComment.getCommentGroupId(), exhibitionComment.getComment(), null, exhibitionComment.getUserCustomer().getName(), isMine, exhibitionComment.getCreateAt(), exhibitionComment.isHasCommentGroup());
             }
             exhibitionCommentDTOList.add(exhibitionCommentDTO);
         });
@@ -114,22 +114,22 @@ public class ExhibitionService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExhibitionCommentDTO> getExhibitionCommentGroup(String uuid, String commentGroupId) throws NullPointerException{
+    public List<ExhibitionCommentDTO> getExhibitionCommentGroup(String uuid, String commentGroupId) throws NullPointerException {
         UserCustomer userCustomer = userCustomerRepository.findById(uuid).orElseThrow(() -> new NullPointerException("해당 유저는 존재하지 않습니다."));
         List<ExhibitionComment> exhibitionCommentList = exhibitionCommentRepository
                 .findByCommentGroupIdAndSequenceNot(commentGroupId, 0)
-                .orElseThrow(()-> new NullPointerException("해당 댓글에는 대댓글이 존재하지 않습니다."));
+                .orElseThrow(() -> new NullPointerException("해당 댓글에는 대댓글이 존재하지 않습니다."));
         List<ExhibitionCommentDTO> exhibitionCommentDTOList = new ArrayList<>();
         Optional.ofNullable(exhibitionCommentList).orElseGet(Collections::emptyList).forEach(exhibitionComment -> {
-            ExhibitionCommentDTO  exhibitionCommentDTO = null;
+            ExhibitionCommentDTO exhibitionCommentDTO = null;
             if (exhibitionComment.getConstructor() != null) {
-                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment.getId(), exhibitionComment.getCommentGroupId(), exhibitionComment.getSequence(), exhibitionComment.getComment(), exhibitionComment.getConstructor().getName(), null, false, exhibitionComment.getCreateAt(), exhibitionComment.isHasCommentGroup());
-            }else if(exhibitionComment.getUserCustomer() != null){
+                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment.getId(), exhibitionComment.getCommentGroupId(), exhibitionComment.getComment(), exhibitionComment.getConstructor().getName(), null, false, exhibitionComment.getCreateAt(), exhibitionComment.isHasCommentGroup());
+            } else if (exhibitionComment.getUserCustomer() != null) {
                 boolean isMine = false;
-                if(exhibitionComment.getUserCustomer().getId().equals(uuid)){
+                if (exhibitionComment.getUserCustomer().getId().equals(uuid)) {
                     isMine = true;
                 }
-                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment.getId(), exhibitionComment.getCommentGroupId(), exhibitionComment.getSequence(), exhibitionComment.getComment(), null, exhibitionComment.getUserCustomer().getName(), isMine, exhibitionComment.getCreateAt(), exhibitionComment.isHasCommentGroup());
+                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment.getId(), exhibitionComment.getCommentGroupId(), exhibitionComment.getComment(), null, exhibitionComment.getUserCustomer().getName(), isMine, exhibitionComment.getCreateAt(), exhibitionComment.isHasCommentGroup());
             }
             exhibitionCommentDTOList.add(exhibitionCommentDTO);
         });
@@ -145,15 +145,15 @@ public class ExhibitionService {
         exhibitionCommentRepository.save(exhibitionComment);
         List<ExhibitionCommentDTO> exhibitionCommentDTOList = new ArrayList<>();
         exhibitionCommentRepository.findByExhibitionBoard_IdAndSequence(boardId, 0).orElseGet(Collections::emptyList).forEach(exhibitionComment1 -> {
-            ExhibitionCommentDTO  exhibitionCommentDTO = null;
+            ExhibitionCommentDTO exhibitionCommentDTO = null;
             if (exhibitionComment1.getConstructor() != null) {
-                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment1.getId(), exhibitionComment1.getCommentGroupId(), exhibitionComment1.getSequence(), exhibitionComment1.getComment(), exhibitionComment1.getConstructor().getName(), null, false, exhibitionComment1.getCreateAt(), exhibitionComment1.isHasCommentGroup());
-            }else if(exhibitionComment1.getUserCustomer() != null){
+                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment1.getId(), exhibitionComment1.getCommentGroupId(), exhibitionComment1.getComment(), exhibitionComment1.getConstructor().getName(), null, false, exhibitionComment1.getCreateAt(), exhibitionComment1.isHasCommentGroup());
+            } else if (exhibitionComment1.getUserCustomer() != null) {
                 boolean isMine = false;
-                if(exhibitionComment1.getUserCustomer().getId().equals(uuid)){
+                if (exhibitionComment1.getUserCustomer().getId().equals(uuid)) {
                     isMine = true;
                 }
-                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment1.getId(), exhibitionComment1.getCommentGroupId(), exhibitionComment1.getSequence(), exhibitionComment1.getComment(), null,  exhibitionComment1.getUserCustomer().getName(), isMine, exhibitionComment1.getCreateAt(), exhibitionComment1.isHasCommentGroup());
+                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment1.getId(), exhibitionComment1.getCommentGroupId(), exhibitionComment1.getComment(), null, exhibitionComment1.getUserCustomer().getName(), isMine, exhibitionComment1.getCreateAt(), exhibitionComment1.isHasCommentGroup());
             }
             exhibitionCommentDTOList.add(exhibitionCommentDTO);
         });
@@ -171,39 +171,49 @@ public class ExhibitionService {
 
         List<ExhibitionComment> exhibitionCommentList = exhibitionCommentRepository
                 .findByCommentGroupIdAndSequenceNot(commentGroupId, 0)
-                .orElseThrow(()-> new NullPointerException("해당 댓글에는 대댓글이 존재하지 않습니다."));
+                .orElseThrow(() -> new NullPointerException("해당 댓글에는 대댓글이 존재하지 않습니다."));
         List<ExhibitionCommentDTO> exhibitionCommentDTOList = new ArrayList<>();
         Optional.ofNullable(exhibitionCommentList).orElseGet(Collections::emptyList).forEach(exhibitionComment1 -> {
-            ExhibitionCommentDTO  exhibitionCommentDTO = null;
+            ExhibitionCommentDTO exhibitionCommentDTO = null;
             if (exhibitionComment1.getConstructor() != null) {
-                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment1.getId(), exhibitionComment1.getCommentGroupId(), exhibitionComment1.getSequence(), exhibitionComment1.getComment(), exhibitionComment1.getConstructor().getName(), null, false, exhibitionComment1.getCreateAt(), exhibitionComment1.isHasCommentGroup());
-            }else if(exhibitionComment1.getUserCustomer() != null){
+                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment1.getId(), exhibitionComment1.getCommentGroupId(), exhibitionComment1.getComment(), exhibitionComment1.getConstructor().getName(), null, false, exhibitionComment1.getCreateAt(), exhibitionComment1.isHasCommentGroup());
+            } else if (exhibitionComment1.getUserCustomer() != null) {
                 boolean isMine = false;
-                if(exhibitionComment1.getUserCustomer().getId().equals(uuid)){
+                if (exhibitionComment1.getUserCustomer().getId().equals(uuid)) {
                     isMine = true;
                 }
-                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment1.getId(), exhibitionComment1.getCommentGroupId(), exhibitionComment1.getSequence(), exhibitionComment1.getComment(), null, exhibitionComment1.getUserCustomer().getName(), isMine, exhibitionComment1.getCreateAt(), exhibitionComment1.isHasCommentGroup());
+                exhibitionCommentDTO = new ExhibitionCommentDTO(exhibitionComment1.getId(), exhibitionComment1.getCommentGroupId(), exhibitionComment1.getComment(), null, exhibitionComment1.getUserCustomer().getName(), isMine, exhibitionComment1.getCreateAt(), exhibitionComment1.isHasCommentGroup());
             }
             exhibitionCommentDTOList.add(exhibitionCommentDTO);
         });
         return exhibitionCommentDTOList;
     }
+
     @Transactional
-    public void deleteComment(String uuid, String commentId) throws NullPointerException{
+    public void deleteComment(String uuid, String commentId) throws NullPointerException {
         ExhibitionComment exhibitionComment = exhibitionCommentRepository.findByUserCustomer_IdAndId(uuid, commentId)
-                .orElseThrow(()-> new NullPointerException("해당 댓글은 본인이 작성한 댓글이 아닙니다."));
-        exhibitionCommentRepository.delete(exhibitionComment);
+                .orElseThrow(() -> new NullPointerException("해당 댓글은 본인이 작성한 댓글이 아닙니다."));
+        //root인지 검사
+        if (exhibitionComment.getSequence() == 0) {
+            exhibitionCommentRepository.deleteAllByCommentGroupId(exhibitionComment.getCommentGroupId());
+        } else {
+            //commentGroup내 댓글 개수 검사
+            if (exhibitionCommentRepository.countByCommentGroupId(exhibitionComment.getCommentGroupId()) == 2) { //해당 댓글 삭제 및 root 댓글 hasComment 수정
+                exhibitionCommentRepository.updateHasCommentGroup(false, exhibitionComment.getCommentGroupId());
+            }
+            exhibitionCommentRepository.delete(exhibitionComment);
+        }
     }
 
     @Transactional
-    public ExhibitionCommentDTO alterComment(String uuid, ExhibitionCommentAlterDTO exhibitionCommentAlterDTO){
+    public ExhibitionCommentDTO alterComment(String uuid, ExhibitionCommentAlterDTO exhibitionCommentAlterDTO) {
         ExhibitionComment exhibitionComment = exhibitionCommentRepository.findByUserCustomer_IdAndId(uuid, exhibitionCommentAlterDTO.getCommentId())
-                .orElseThrow(()-> new NullPointerException("해당 댓글은 본인이 작성한 댓글이 아닙니다."));
+                .orElseThrow(() -> new NullPointerException("해당 댓글은 본인이 작성한 댓글이 아닙니다."));
         //exhibitionCommentRepository.updateComment(exhibitionCommentAlterDTO.getContents(), uuid, exhibitionCommentAlterDTO.getCommentId());
         /*ExhibitionComment exhibitionCommentUpdate = exhibitionCommentRepository.findByUserCustomer_IdAndId(uuid, exhibitionCommentAlterDTO.getCommentId())
                 .orElseThrow(()-> new NullPointerException("댓글 업데이트 실패"));*/
         exhibitionComment.setComment(exhibitionCommentAlterDTO.getContents());
         ExhibitionComment exhibitionCommentUpdate = exhibitionCommentRepository.save(exhibitionComment);
-        return new ExhibitionCommentDTO(exhibitionCommentUpdate.getId(), exhibitionCommentUpdate.getCommentGroupId(), exhibitionCommentUpdate.getSequence(), exhibitionCommentUpdate.getComment(), null, exhibitionCommentUpdate.getUserCustomer().getName(), true, exhibitionCommentUpdate.getCreateAt(), exhibitionCommentUpdate.isHasCommentGroup());
+        return new ExhibitionCommentDTO(exhibitionCommentUpdate.getId(), exhibitionCommentUpdate.getCommentGroupId(), exhibitionCommentUpdate.getComment(), null, exhibitionCommentUpdate.getUserCustomer().getName(), true, exhibitionCommentUpdate.getCreateAt(), exhibitionCommentUpdate.isHasCommentGroup());
     }
 }

@@ -29,69 +29,69 @@ import java.util.UUID;
 public class EstimateService {
     private final EstimateRepository estimateRepository;
     private final RequestOrderRepository requestOrderRepository;
-    private final UserCustomerRepository userCustomerRepository;
-    private final NowWorkInfoRepository nowWorkInfoRepository;
-    private final WorkDetailRepository workDetailRepository;
     private final WorkingRepository workingRepository;
     private final ConstructorAlarmRepository constructorAlarmRepository;
 
     @Transactional(readOnly = true)
-    public List<MyEstimateDTO> getMyEstimateList(String uuid) throws NullPointerException {
-        List<Estimate> estimateList = estimateRepository.findByRequestOrder_Customer_Id(uuid).orElseThrow(() -> new NullPointerException("해당 회원에게 도착한 견적서가 없습니다."));
-        List<MyEstimateDTO> myEstimateDTOList = new ArrayList<>();
-        for (Estimate estimate : estimateList) {
-            MyEstimateDTO myEstimateDTO = null;
-            if (estimate.getRequestOrder().getApartment() != null) {
-                myEstimateDTO = new MyEstimateDTO(estimate.getId(), estimate.getConstructor().getName(), estimate.getRequestOrder().getApartment().getName(), estimate.getRequestOrder().getDong(), estimate.getRequestOrder().getHosu(), estimate.getRequestOrder().getApartmentType(), estimate.getConstructorProduct().getName(), estimate.getStatus());
-            } else if (estimate.getRequestOrder().getOtherHome() != null) {
-                myEstimateDTO = new MyEstimateDTO(estimate.getId(), estimate.getConstructor().getName(), estimate.getRequestOrder().getOtherHome().getName(), estimate.getRequestOrder().getOtherHomeDong(), estimate.getRequestOrder().getOtherHomeHosu(), estimate.getRequestOrder().getOtherHomeType(), estimate.getConstructorProduct().getName(), estimate.getStatus());
+    public List<MyRequestOrderDTO> getMyEstimateList(String uuid) throws NullPointerException {
+        //List<Estimate> estimateList = estimateRepository.findByRequestOrder_Customer_Id(uuid).orElseThrow(() -> new NullPointerException("해당 회원에게 도착한 견적서가 없습니다."));
+        List<RequestOrder> requestOrderList = requestOrderRepository.findByCustomer_Id(uuid).orElseThrow(() -> new NullPointerException("회원이 발송한 전자 계약서 요청건이 없습니다."));
+        List<MyRequestOrderDTO> myRequestOrderDTOList = new ArrayList<>();
+        for (RequestOrder requestOrder : requestOrderList) {
+            MyRequestOrderDTO myRequestOrderDTO = null;
+            if (requestOrder.getApartment() != null) {
+                myRequestOrderDTO = new MyRequestOrderDTO(requestOrder.getId(), requestOrder.getConstructor().getName(), requestOrder.getApartment().getName(), requestOrder.getDong(), requestOrder.getHosu(), requestOrder.getApartmentType(), requestOrder.getConstructorProduct().getProduct().getName(), requestOrder.getStatus(), requestOrder.getCreateAt());
+            } else if (requestOrder.getOtherHome() != null) {
+                myRequestOrderDTO = new MyRequestOrderDTO(requestOrder.getId(), requestOrder.getConstructor().getName(), requestOrder.getOtherHome().getName(), requestOrder.getOtherHomeDong(), requestOrder.getOtherHomeHosu(), requestOrder.getOtherHomeType(), requestOrder.getConstructorProduct().getProduct().getName(), requestOrder.getStatus(), requestOrder.getCreateAt());
             }
-            myEstimateDTOList.add(myEstimateDTO);
+            myRequestOrderDTOList.add(myRequestOrderDTO);
         }
-        return myEstimateDTOList;
+        return myRequestOrderDTOList;
     }
 
     @Transactional(readOnly = true)
-    public EstimateInfoDto getEstimate(String estimateId) throws NullPointerException {
-        Estimate estimate = estimateRepository
-                .findById(estimateId)
-                .orElseThrow(() -> new NullPointerException("해당 견적서는 존재하지 않습니다."));
+    public RequestOrderDTO getEstimate(String requestOrderId) throws NullPointerException {
+        RequestOrder requestOrder = requestOrderRepository
+                .findById(requestOrderId)
+                .orElseThrow(() -> new NullPointerException("해당 계약서는 존재하지 않습니다."));
 
         //회원인 경우만을 고려
-        List<String> phoneNumber = new ArrayList<>();
-        estimate.getRequestOrder().getCustomer().getPhoneNumbers().forEach(customerPhoneNumber -> {
-            phoneNumber.add(customerPhoneNumber.getPhoneNumber());
-        });
-        List<EstimateDetailDto> estimateDetailList = new ArrayList<>();
-        estimate.getEstimateDetails().forEach(estimateDetail -> {
-            EstimateDetailDto estimateDetailDto = new EstimateDetailDto();
-            estimateDetailDto.setName(estimateDetail.getProductName());
-            estimateDetailDto.setCount(estimateDetail.getCount());
-            estimateDetailDto.setPrice(estimateDetail.getPrice());
-            estimateDetailList.add(estimateDetailDto);
-        });
-        List<DiscountDto> discountDtoList = new ArrayList<>();
-        estimate.getDiscountList().stream().forEach(discount -> {
-            DiscountDto dto = new DiscountDto();
-            dto.setContent(discount.getDiscountContent());
-            dto.setDiscountPrice(discount.getDiscount());
-            discountDtoList.add(dto);
-        });
+        String phoneNumber = requestOrder.getPhoneNumber();
 
-        EstimateInfoDto estimateInfoDto;
-        if (estimate.getRequestOrder().getApartment() != null) {
-            estimateInfoDto = new EstimateInfoDto(estimate.getConstructor().getName(), phoneNumber, estimate.getRequestOrder().getApartment().getName(), estimate.getRequestOrder().getDong(), estimate.getRequestOrder().getHosu(), estimate.getRequestOrder().getApartmentType(), estimate.getRequestOrder().getLiveInDate(), estimate.getRequestOrder().isConfirmationLiveIn(), estimate.getRequestOrder().getRequestConstructDate(), estimate.getRequestOrder().isConfirmationConstruct(), estimate.getRequestOrder().isCashReceipt(), estimate.getRequestOrder().getNote(), estimate.getConstructorProduct().getName(), estimateDetailList, discountDtoList, estimate.getPrice(), estimate.isVat(), estimate.getNote());
-        } else {
-            estimateInfoDto = new EstimateInfoDto(estimate.getConstructor().getName(), phoneNumber, estimate.getRequestOrder().getOtherHome().getName(), estimate.getRequestOrder().getOtherHomeDong(), estimate.getRequestOrder().getOtherHomeHosu(), estimate.getRequestOrder().getOtherHomeType(), estimate.getRequestOrder().getLiveInDate(), estimate.getRequestOrder().isConfirmationLiveIn(), estimate.getRequestOrder().getRequestConstructDate(), estimate.getRequestOrder().isConfirmationConstruct(), estimate.getRequestOrder().isCashReceipt(), estimate.getRequestOrder().getNote(), estimate.getConstructorProduct().getName(), estimateDetailList, discountDtoList, estimate.getPrice(), estimate.isVat(), estimate.getNote());
+        List<EstimateDetailDto> estimateDetailList = new ArrayList<>();
+        List<DiscountDto> discountDtoList = new ArrayList<>();
+        EstimateInfoDTO estimateInfoDTO = null;
+        if (requestOrder.getEstimate() != null) {
+            requestOrder.getEstimate().getEstimateDetails().forEach(estimateDetail -> {
+                EstimateDetailDto estimateDetailDto = new EstimateDetailDto();
+                estimateDetailDto.setName(estimateDetail.getProductName());
+                estimateDetailDto.setCount(estimateDetail.getCount());
+                estimateDetailDto.setPrice(estimateDetail.getPrice());
+                estimateDetailList.add(estimateDetailDto);
+            });
+            requestOrder.getEstimate().getDiscountList().stream().forEach(discount -> {
+                DiscountDto dto = new DiscountDto();
+                dto.setContent(discount.getDiscountContent());
+                dto.setDiscountPrice(discount.getDiscount());
+                discountDtoList.add(dto);
+            });
+            estimateInfoDTO = new EstimateInfoDTO(estimateDetailList, discountDtoList, requestOrder.getEstimate().getPrice(), requestOrder.getEstimate().isVat(),requestOrder.getEstimate().getNote());
         }
-        return estimateInfoDto;
+
+        RequestOrderDTO requestOrderDTO;
+        if (requestOrder.getApartment() != null) {
+            requestOrderDTO = new RequestOrderDTO(requestOrder.getConstructor().getName(), phoneNumber, requestOrder.getApartment().getName(), requestOrder.getDong(), requestOrder.getHosu(), requestOrder.getApartmentType(), requestOrder.getLiveInDate(), requestOrder.isConfirmationLiveIn(), requestOrder.getRequestConstructDate(), requestOrder.isConfirmationConstruct(), requestOrder.isCashReceipt(), requestOrder.getNote(), requestOrder.getConstructorProduct().getProduct().getName(), estimateInfoDTO);
+        } else {
+            requestOrderDTO = new RequestOrderDTO(requestOrder.getConstructor().getName(), phoneNumber, requestOrder.getOtherHome().getName(), requestOrder.getOtherHomeDong(), requestOrder.getOtherHomeHosu(), requestOrder.getOtherHomeType(), requestOrder.getLiveInDate(), requestOrder.isConfirmationLiveIn(), requestOrder.getRequestConstructDate(), requestOrder.isConfirmationConstruct(), requestOrder.isCashReceipt(), requestOrder.getNote(), requestOrder.getConstructorProduct().getProduct().getName(), estimateInfoDTO);
+        }
+        return requestOrderDTO;
     }
 
     @Transactional
-    public void rejectEstimate(RejectEstimateDTO rejectEstimate) throws NullPointerException{
+    public void rejectEstimate(RejectEstimateDTO rejectEstimate) throws NullPointerException {
         Estimate estimate = estimateRepository
                 .findById(rejectEstimate.getEstimateId())
-                .orElseThrow(()->new NullPointerException("존재하지 않는 견적서입니다."));
+                .orElseThrow(() -> new NullPointerException("존재하지 않는 견적서입니다."));
         //계약서 요청건 상태 반려로 변경
         RequestOrder requestOrder = estimate.getRequestOrder();
         requestOrder.setStatus(RequestOrderEnum.REJECT.label());
@@ -104,14 +104,14 @@ public class EstimateService {
     }
 
     @Transactional
-    public void deleteEstimate(String estimateId){
+    public void deleteEstimate(String estimateId) {
         estimateRepository.deleteById(estimateId);
     }
 
     @Transactional
-    public void agreeEstimate(AgreeDTO agreeDTO){
+    public void agreeEstimate(AgreeDTO agreeDTO) {
         Estimate estimate = estimateRepository.findById(agreeDTO.getEstimateId())
-                .orElseThrow(()->new NullPointerException("존재하지 않는 견적서입니다."));
+                .orElseThrow(() -> new NullPointerException("존재하지 않는 견적서입니다."));
         //계약서 요청건 상태를 처리완료로 변경
         RequestOrder requestOrder = estimate.getRequestOrder();
         requestOrder.setStatus(RequestOrderEnum.PROCESSED.label());
@@ -181,7 +181,7 @@ public class EstimateService {
         //nowWorkInfoRepository.save(nowWorkInfo);
     }
 
-    private void sendAlarm(Constructor constructor, ConstructorAlarmEnum constructorAlarmEnum, String content){
+    private void sendAlarm(Constructor constructor, ConstructorAlarmEnum constructorAlarmEnum, String content) {
         ConstructorAlarm constructorAlarm = ConstructorAlarm.builder()
                 .id(UUID.randomUUID().toString())
                 .constructor(constructor)

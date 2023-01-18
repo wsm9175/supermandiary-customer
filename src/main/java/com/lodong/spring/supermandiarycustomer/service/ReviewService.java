@@ -37,7 +37,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final UserCustomerRepository userCustomerRepository;
 
-    private final String STORAGE_ROOT_PATH = "/home/lodong/TestStorage/";
+    private final String STORAGE_ROOT_PATH = "/storage/";
     private final String File_PATH = "review-file/";
 
     private final FileRepository fileRepository;
@@ -51,9 +51,9 @@ public class ReviewService {
         for (Working working : workings) {
             MyWorkDTO myWorkDTO = null;
             if (working.getApartment() != null) {
-                myWorkDTO = new MyWorkDTO(working.getId(), working.getConstructor().getId(), working.isCompletePay(), working.getConstructor().getName(), working.getApartment().getName(), working.getApartmentDong(), working.getApartmentHosu(), working.getApartmentType(), working.getConstructorProduct().getName(), working.getNowWorkInfo().getWorkDetail().getName());
+                myWorkDTO = new MyWorkDTO(working.getId(), working.getConstructor().getId(), working.isCompletePay(), working.getConstructor().getName(), working.getApartment().getName(), working.getApartmentDong(), working.getApartmentHosu(), working.getApartmentType(), working.getConstructorProduct().getProduct().getName(), working.getNowWorkInfo().getWorkDetail().getName());
             } else if (working.getOtherHome() != null) {
-                myWorkDTO = new MyWorkDTO(working.getId(), working.getConstructor().getId(), working.isCompletePay(), working.getConstructor().getName(), working.getOtherHome().getName(), working.getOtherHomeDong(), working.getOtherHomeHosu(), working.getOtherHomeType(), working.getConstructorProduct().getName(), working.getNowWorkInfo().getWorkDetail().getName());
+                myWorkDTO = new MyWorkDTO(working.getId(), working.getConstructor().getId(), working.isCompletePay(), working.getConstructor().getName(), working.getOtherHome().getName(), working.getOtherHomeDong(), working.getOtherHomeHosu(), working.getOtherHomeType(), working.getConstructorProduct().getProduct().getName(), working.getNowWorkInfo().getWorkDetail().getName());
             }
             myWorkDTOList.add(myWorkDTO);
         }
@@ -71,7 +71,7 @@ public class ReviewService {
             for (ReviewImageFile reviewImageFile : review.getReviewImageFileList()) {
                 reviewImageFileNameList.add(reviewImageFile.getFileList().getName());
             }
-            myReviewDTOList.add(new MyReviewDTO(review.getId(), reviewImageFileNameList, review.getCustomer().getId(), review.getCustomerName(), review.isSatisfaction(), review.getContents(), review.getCreateAt(), Optional.ofNullable(review.getReviewLikeList()).orElseGet(Collections::emptySet).size(), review.getWorking().getConstructorProduct().getName()));
+            myReviewDTOList.add(new MyReviewDTO(review.getId(), reviewImageFileNameList, review.getCustomer().getId(), review.getCustomerName(), review.isSatisfaction(), review.getContents(), review.getCreateAt(), Optional.ofNullable(review.getReviewLikeList()).orElseGet(Collections::emptySet).size(), review.getWorking().getConstructorProduct().getProduct().getName()));
         }
 
         return myReviewDTOList;

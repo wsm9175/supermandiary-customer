@@ -24,6 +24,7 @@ public class JwtTokenProvider {
     private final Key key;
     private final String secretKey = "VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa";
     private final long validTime = 60000;
+    private final long refreshValidTime = 86400000*7;
 
     public JwtTokenProvider() {
         byte[] keyBytes = Decoders.BASE64.decode(this.secretKey);
@@ -49,7 +50,7 @@ public class JwtTokenProvider {
 
         // Refresh Token 생성
         String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + 86400000))
+                .setExpiration(new Date(now + refreshValidTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 

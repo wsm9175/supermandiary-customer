@@ -21,4 +21,5 @@ public interface UserCustomerRepository extends JpaRepository<UserCustomer, Stri
     void insertRefreshToken(String refreshToken, String phoneNumber);
 
     public boolean existsByEmail(String email);
+    public boolean existsByPhoneNumber(String phoneNumber);
 }

@@ -90,7 +90,7 @@ public class AuthService {
     }
 
     public boolean isDuplicatedConstructor(String email) {
-        return userCustomerRepository.existsByEmail(email);
+        return userCustomerRepository.existsByPhoneNumber(email);
     }
 
     public void insertRefreshTokenForCustomer(String refreshToken, String phoneNumber) {
