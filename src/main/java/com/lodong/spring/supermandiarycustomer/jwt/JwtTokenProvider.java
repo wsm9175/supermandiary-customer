@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private final Key key;
     private final String secretKey = "VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa";
-    private final long validTime = 60000;
+    private final long validTime = 86400000;
     private final long refreshValidTime = 86400000*7;
 
     public JwtTokenProvider() {

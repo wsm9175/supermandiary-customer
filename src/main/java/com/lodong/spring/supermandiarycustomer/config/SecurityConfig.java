@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 /*.antMatchers("/rest/v1/**").permitAll()*/
                 .requestMatchers("/rest/v1/auth/**").permitAll()
+                .requestMatchers("/ws/**").permitAll() // 웹 소켓 연결 허용
                 .requestMatchers("rest/v1/file/customer/display").permitAll()
                 .requestMatchers("/rest/v1/**").hasRole(PermissionEnum.CUSTOMER.name())
                 .anyRequest().authenticated()//이 밖에 모든 요청에 대해서 인증을 필요로 한다는 설정이다.

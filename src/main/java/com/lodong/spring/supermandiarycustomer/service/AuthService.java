@@ -1,10 +1,14 @@
 package com.lodong.spring.supermandiarycustomer.service;
 
 
+import com.lodong.spring.supermandiarycustomer.domain.auth.ProductInfoDTO;
+import com.lodong.spring.supermandiarycustomer.domain.constructor.Product;
 import com.lodong.spring.supermandiarycustomer.domain.usercustomer.UserCustomer;
 import com.lodong.spring.supermandiarycustomer.dto.jwt.TokenRequestDTO;
 import com.lodong.spring.supermandiarycustomer.jwt.JwtTokenProvider;
 import com.lodong.spring.supermandiarycustomer.jwt.TokenInfo;
+import com.lodong.spring.supermandiarycustomer.rabbitmq.RabbitMQManager;
+import com.lodong.spring.supermandiarycustomer.repository.ProductRepository;
 import com.lodong.spring.supermandiarycustomer.repository.UserCustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +18,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,10 +28,12 @@ public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserCustomerRepository userCustomerRepository;
+    private final RabbitMQManager rabbitMQManager;
+    private final ProductRepository productRepository;
 
 
     @Transactional
-    public void registerCustomer(UserCustomer user) throws IllegalStateException, Exception {
+    public void registerCustomer(UserCustomer user) throws Exception {
         if (isDuplicatedConstructor(user.getEmail())) throw new IllegalStateException("이메일 중복값 존재");
         try {
             userCustomerRepository.save(user);
@@ -32,7 +41,7 @@ public class AuthService {
             System.out.println(nullPointerException.getMessage());
             throw new NullPointerException("빈 값 존재");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             throw new Exception("데이터 베이스 저장 실패");
         }
         //채팅관련 유저 등록 코드 포함 예정 using savedUser
@@ -89,12 +98,27 @@ public class AuthService {
         return tokenInfo;
     }
 
+    public List<ProductInfoDTO> getProductList(){
+        List<Product> products = productRepository.findAll();
+        List<ProductInfoDTO> productInfoDTOS = new ArrayList<>();
+        for(Product product : products){
+            ProductInfoDTO productInfoDTO = new ProductInfoDTO(product.getId(), product.getName());
+            productInfoDTOS.add(productInfoDTO);
+        }
+
+        return productInfoDTOS;
+    }
+
     public boolean isDuplicatedConstructor(String email) {
         return userCustomerRepository.existsByPhoneNumber(email);
     }
 
     public void insertRefreshTokenForCustomer(String refreshToken, String phoneNumber) {
         userCustomerRepository.insertRefreshToken(refreshToken, phoneNumber);
+    }
+
+    public void registerNewRabbitMQAccount(String userId, boolean durability){
+        rabbitMQManager.declareQueue(userId, durability);
     }
 }
 

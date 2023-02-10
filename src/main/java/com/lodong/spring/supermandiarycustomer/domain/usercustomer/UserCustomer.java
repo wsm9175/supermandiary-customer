@@ -7,9 +7,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -46,6 +48,8 @@ public class UserCustomer implements UserDetails {
     private String refreshToken;
     @Column
     private String fcm;
+    @Column
+    private LocalDateTime createAt;
     @ElementCollection(fetch = FetchType.LAZY)
     private List<String> roles;
 
@@ -56,6 +60,9 @@ public class UserCustomer implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "userCustomer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CustomerPhoneNumber> phoneNumbers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "userCustomer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<CustomerInterestService> interestServiceSet;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

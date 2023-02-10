@@ -1,5 +1,6 @@
 package com.lodong.spring.supermandiarycustomer.controller;
 
+import com.lodong.spring.supermandiarycustomer.dto.auth.FcmDTO;
 import com.lodong.spring.supermandiarycustomer.dto.constructor.ConstructorDTO;
 import com.lodong.spring.supermandiarycustomer.dto.main.AlarmDTO;
 import com.lodong.spring.supermandiarycustomer.dto.main.MainInfoDTO;
@@ -86,9 +87,17 @@ public class MainController {
     }
 
     @PatchMapping("/alarm/read-all")
-    public ResponseEntity<?> readAllAlarm(@RequestHeader(name = "Authorization") String token, @RequestBody ReadAllAlarmDTO readAllAlarmDTO){
+    public ResponseEntity<?> readAllAlarm(@RequestBody ReadAllAlarmDTO readAllAlarmDTO){
         mainService.readAllAlarm(readAllAlarmDTO);
         return getResponseMessage(StatusEnum.OK, "모든 알림 읽음 처리", null);
+    }
+
+    @PatchMapping("/fcm")
+    public ResponseEntity<?> registerFCMToken(@RequestHeader(name = "Authorization") String token,@RequestBody FcmDTO fcmDTO) {
+        log.info("fcm received by {}", fcmDTO.getFcmId());
+        mainService.registerFCMToken(getMyUuId(token), fcmDTO.getFcmId());
+
+        return ResponseEntity.ok().build();
     }
 
     private String getMyUuId(String token) throws NullPointerException {

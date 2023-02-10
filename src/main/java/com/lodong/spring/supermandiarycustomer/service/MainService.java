@@ -112,7 +112,7 @@ public class MainService {
                 .toList();
 
         for (Working working : workingList) {
-            List<WorkDetail> workDetailList = working.getWorkDetails();
+            Set<WorkDetail> workDetailList = working.getWorkDetails();
             if (working.isCompletePay()) {
                 completeWorkingCount++;
             } else {
@@ -179,11 +179,14 @@ public class MainService {
 
         userCustomerAlarmRepository.updateReadAlarm(true, alarmId);
     }
-
     @Transactional
     public void readAllAlarm(ReadAllAlarmDTO readAllAlarmDTOS){
         for(String alarmId : readAllAlarmDTOS.getAlarmList()){
             userCustomerAlarmRepository.updateReadAlarm(true, alarmId);
         }
+    }
+    @Transactional
+    public void registerFCMToken(String uuid, String fcmId){
+        //String uuid = fc
     }
 }

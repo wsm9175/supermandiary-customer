@@ -18,7 +18,7 @@ public class CustomerInfoDTO {
     private String email;
     private List<CustomerAddressDTO> customerAddressList;
     private boolean isInterestInInterior;
-    private List<String> interestTech;
+    private List<String> interestProduct;
     private boolean isCertification;
     private boolean isAgreeTerm;
 }

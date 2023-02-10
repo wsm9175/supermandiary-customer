@@ -19,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -40,9 +38,9 @@ public class EstimateService {
         for (RequestOrder requestOrder : requestOrderList) {
             MyRequestOrderDTO myRequestOrderDTO = null;
             if (requestOrder.getApartment() != null) {
-                myRequestOrderDTO = new MyRequestOrderDTO(requestOrder.getId(), requestOrder.getConstructor().getName(), requestOrder.getApartment().getName(), requestOrder.getDong(), requestOrder.getHosu(), requestOrder.getApartmentType(), requestOrder.getConstructorProduct().getProduct().getName(), requestOrder.getStatus(), requestOrder.getCreateAt());
+                myRequestOrderDTO = new MyRequestOrderDTO(requestOrder.getId(), requestOrder.getConstructor().getName(), requestOrder.getApartment().getName(), requestOrder.getDong(), requestOrder.getHosu(), requestOrder.getApartmentType(), requestOrder.getConstructorProduct().getProduct().getName(), requestOrder.getStatus(), requestOrder.getCustomer().getName(),requestOrder.getCreateAt());
             } else if (requestOrder.getOtherHome() != null) {
-                myRequestOrderDTO = new MyRequestOrderDTO(requestOrder.getId(), requestOrder.getConstructor().getName(), requestOrder.getOtherHome().getName(), requestOrder.getOtherHomeDong(), requestOrder.getOtherHomeHosu(), requestOrder.getOtherHomeType(), requestOrder.getConstructorProduct().getProduct().getName(), requestOrder.getStatus(), requestOrder.getCreateAt());
+                myRequestOrderDTO = new MyRequestOrderDTO(requestOrder.getId(), requestOrder.getConstructor().getName(), requestOrder.getOtherHome().getName(), requestOrder.getOtherHomeDong(), requestOrder.getOtherHomeHosu(), requestOrder.getOtherHomeType(), requestOrder.getConstructorProduct().getProduct().getName(), requestOrder.getStatus(), requestOrder.getCustomer().getName(),requestOrder.getCreateAt());
             }
             myRequestOrderDTOList.add(myRequestOrderDTO);
         }
@@ -69,20 +67,20 @@ public class EstimateService {
                 estimateDetailDto.setPrice(estimateDetail.getPrice());
                 estimateDetailList.add(estimateDetailDto);
             });
-            requestOrder.getEstimate().getDiscountList().stream().forEach(discount -> {
+            requestOrder.getEstimate().getDiscountList().forEach(discount -> {
                 DiscountDto dto = new DiscountDto();
                 dto.setContent(discount.getDiscountContent());
                 dto.setDiscountPrice(discount.getDiscount());
                 discountDtoList.add(dto);
             });
-            estimateInfoDTO = new EstimateInfoDTO(estimateDetailList, discountDtoList, requestOrder.getEstimate().getPrice(), requestOrder.getEstimate().isVat(),requestOrder.getEstimate().getNote());
+            estimateInfoDTO = new EstimateInfoDTO(requestOrder.getEstimate().getId(),estimateDetailList, discountDtoList, requestOrder.getEstimate().getPrice(), requestOrder.getEstimate().isVat(),requestOrder.getEstimate().getNote());
         }
 
         RequestOrderDTO requestOrderDTO;
         if (requestOrder.getApartment() != null) {
-            requestOrderDTO = new RequestOrderDTO(requestOrder.getConstructor().getName(), phoneNumber, requestOrder.getApartment().getName(), requestOrder.getDong(), requestOrder.getHosu(), requestOrder.getApartmentType(), requestOrder.getLiveInDate(), requestOrder.isConfirmationLiveIn(), requestOrder.getRequestConstructDate(), requestOrder.isConfirmationConstruct(), requestOrder.isCashReceipt(), requestOrder.getNote(), requestOrder.getConstructorProduct().getProduct().getName(), estimateInfoDTO);
+            requestOrderDTO = new RequestOrderDTO(requestOrder.getCustomer().getName(), phoneNumber, requestOrder.getApartment().getName(), requestOrder.getDong(), requestOrder.getHosu(), requestOrder.getApartmentType(), requestOrder.getLiveInDate(), requestOrder.isConfirmationLiveIn(), requestOrder.getRequestConstructDate(), requestOrder.isConfirmationConstruct(), requestOrder.isCashReceipt(), requestOrder.getNote(), requestOrder.getConstructorProduct().getProduct().getName(), estimateInfoDTO);
         } else {
-            requestOrderDTO = new RequestOrderDTO(requestOrder.getConstructor().getName(), phoneNumber, requestOrder.getOtherHome().getName(), requestOrder.getOtherHomeDong(), requestOrder.getOtherHomeHosu(), requestOrder.getOtherHomeType(), requestOrder.getLiveInDate(), requestOrder.isConfirmationLiveIn(), requestOrder.getRequestConstructDate(), requestOrder.isConfirmationConstruct(), requestOrder.isCashReceipt(), requestOrder.getNote(), requestOrder.getConstructorProduct().getProduct().getName(), estimateInfoDTO);
+            requestOrderDTO = new RequestOrderDTO(requestOrder.getCustomer().getName(), phoneNumber, requestOrder.getOtherHome().getName(), requestOrder.getOtherHomeDong(), requestOrder.getOtherHomeHosu(), requestOrder.getOtherHomeType(), requestOrder.getLiveInDate(), requestOrder.isConfirmationLiveIn(), requestOrder.getRequestConstructDate(), requestOrder.isConfirmationConstruct(), requestOrder.isCashReceipt(), requestOrder.getNote(), requestOrder.getConstructorProduct().getProduct().getName(), estimateInfoDTO);
         }
         return requestOrderDTO;
     }
@@ -122,7 +120,7 @@ public class EstimateService {
 
         //작업 생성
         List<ConstructorProductWorkList> constructorProductWorkLists = estimate.getConstructorProduct().getConstructorProductWorkLists();
-        List<WorkDetail> workDetails = new ArrayList<>();
+        Set<WorkDetail> workDetails = new HashSet<>();
         Working working = null;
         if (estimate.getRequestOrder().getApartment() != null) {
             working = Working.builder()

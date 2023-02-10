@@ -18,5 +18,6 @@ public class MyRequestOrderDTO {
     private String type;
     private String productName;
     private String status;
+    private String customerName;
     private LocalDateTime localDateTime;
 }

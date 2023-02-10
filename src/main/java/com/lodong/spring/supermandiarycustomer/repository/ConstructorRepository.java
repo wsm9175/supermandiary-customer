@@ -10,13 +10,13 @@ import java.util.Optional;
 
 public interface ConstructorRepository extends JpaRepository<Constructor, String> {
     @Override
-    @EntityGraph(value = "get-constructor-detail", type = EntityGraph.EntityGraphType.LOAD)
+    @EntityGraph(value = "get-all-data-constructor", type = EntityGraph.EntityGraphType.LOAD)
     Optional<Constructor> findById(String s);
 
-    @EntityGraph(value = "get-all-data", type = EntityGraph.EntityGraphType.LOAD)
+    @EntityGraph(value = "get-all-data-constructor", type = EntityGraph.EntityGraphType.LOAD)
     public List<Constructor> findByConstructorWorkAreas(SiggAreas siggAreas);
 
-    @EntityGraph(value = "get-with-file", type = EntityGraph.EntityGraphType.LOAD)
+    @EntityGraph(value = "get-all-data-constructor", type = EntityGraph.EntityGraphType.LOAD)
     public Optional<List<Constructor>> findByNameContaining(String keyWord);
 
 }

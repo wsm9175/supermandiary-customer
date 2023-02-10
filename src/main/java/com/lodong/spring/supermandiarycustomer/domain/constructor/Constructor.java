@@ -11,13 +11,12 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 
 @NamedEntityGraphs({
-        @NamedEntityGraph(name = "get-all-data", attributeNodes = {
+        @NamedEntityGraph(name = "get-all-data-constructor", attributeNodes = {
                 @NamedAttributeNode(value = "constructorProducts"),
                 @NamedAttributeNode(value = "affiliatedInfoList"),
                 @NamedAttributeNode(value = "constructorWorkAreas")

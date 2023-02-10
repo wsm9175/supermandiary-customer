@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data @AllArgsConstructor
 public class EstimateInfoDTO {
+    private String id;
     private List<EstimateDetailDto> estimateDetailList;
     private List<DiscountDto> discountDtoList;
     private int totalPrice;

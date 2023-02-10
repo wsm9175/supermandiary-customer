@@ -1,7 +1,7 @@
 package com.lodong.spring.supermandiarycustomer.enumvalue;
 
 public enum Exchange {
-    EXCHANGE("supermandiary.exchange");
+    EXCHANGE("amq.topic");
 
     private final String exchange;
 
